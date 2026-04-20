@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title> 滴天髓八字 (Di Tian Shui BaZi) </title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&family=Outfit:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        /* Essential base fix for mobile view before CSS loads completely */
+        body, html { width: 100%; height: 100%; overflow: hidden; position: fixed; overscroll-behavior: none; margin: 0; padding: 0; }
+        #phone-container { width: 100%; height: 100%; position: relative; }
+    </style>
+</head>
+<body>
+    <div id="phone-container">
+        
+        <!-- View 1: Login/Security -->
+        <section id="view-login" class="app-view active">
+            <div class="login-wrapper">
+                <div class="login-box">
+                    <div class="login-header">
+                        <h1>滴天髓八字</h1>
+                        <p>管理员门槛认证</p>
+                    </div>
+                    <div class="login-form">
+                        <div class="login-field">
+                            <label>Email</label>
+                            <input type="email" id="login-email" placeholder="输入管理员邮箱">
+                        </div>
+                        <div class="login-field">
+                            <label>Password</label>
+                            <input type="password" id="login-pass" placeholder="输入安全密码">
+                        </div>
+                        <button id="btn-login" class="primary-gradient-btn">进入软件系统</button>
+                        <p id="login-error" class="error-msg"></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- View 2: Input Panel (新建出生资料) -->
+        <section id="view-input" class="app-view">
+            <header class="view-header">
+                <h2>新建出生资料</h2>
+                <button id="btn-logout-system" class="header-icon-btn">
+                    <img src="img/LogOut Icon .png" alt="Logout">
+                </button>
+            </header>
+            <div class="view-content scroll-y">
+                <div id="input-panel-mobile" class="mobile-panel">
+                    <div class="panel-card">
+                        <label class="card-label">西历 (公历)</label>
+                        <div class="date-row">
+                            <select id="greg-year"></select> 
+                            <select id="greg-month"></select> 
+                            <select id="greg-day"></select>
+                        </div>
+                        <div class="time-row mt-10">
+                            <select id="greg-time"></select>
+                        </div>
+                    </div>
+
+                    <div class="panel-card mt-15">
+                        <label class="card-label">农历</label>
+                        <div class="lunar-info" id="lunar-date-display">
+                            <!-- Computed -->
+                        </div>
+                    </div>
+
+                    <div class="panel-card mt-15">
+                        <label class="card-label">基本信息</label>
+                        <div class="input-group">
+                            <span>姓名:</span>
+                            <input type="text" id="user-name" value="未知">
+                        </div>
+                        <div class="input-group mt-10">
+                            <span>性别:</span>
+                            <div class="radio-pill">
+                                <label><input type="radio" name="gender" value="M" checked> <span class="gender-label-m">男</span></label>
+                                <label><input type="radio" name="gender" value="F"> <span class="gender-label-f">女</span></label>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="button-stack mt-20">
+                        <button id="btn-save-chart" class="primary-gradient-btn">存档 + 排盘</button>
+                        <button id="btn-new-chart" class="secondary-btn">设置新命盘</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- View 3: Sidebar/Records (客户资料) -->
+        <section id="view-records" class="app-view">
+            <header class="view-header">
+                <div class="header-left">
+                    <h2>命盘资料</h2>
+                </div>
+                <div class="header-right" style="display:flex; gap:10px;">
+                    <button id="import-btn" class="icon-text-btn">Import 命盘数据</button>
+                    <button id="add-group-btn" class="icon-text-btn">+ 新群组</button>
+                    <input type="file" id="import-file-input" accept=".txt" style="display:none;">
+                </div>
+            </header>
+            <div class="view-content scroll-y">
+                <!-- Search Bar Removed as requested -->
+                <div id="group-list" class="group-list-mobile">
+                    <!-- Dynamic List -->
+                </div>
+            </div>
+        </section>
+
+        <!-- View 4: MainBoard (命盘大厅) -->
+        <section id="view-main" class="app-view">
+            <div class="main-layout-container">
+                <!-- Di Tian Shui BaZi Chart Area -->
+                <div id="chart-area-mobile" class="bazi-container">
+                    <div class="bazi-card">
+                        <!-- User Info Header -->
+                        <div class="bazi-header">
+                            <div class="bazi-header-row">
+                                <div class="header-info-col">
+                                    <div class="header-main">
+                                        <span id="c-name" class="name-text"></span>
+                                    </div>
+                                    <div class="header-sub">
+                                        <div class="info-row">西历: <span id="c-gregorian"></span></div>
+                                        <div class="info-row">农历: <span id="c-lunar"></span></div>
+                                        <div id="c-age-row" class="info-row"></div>
+                                    </div>
+                                </div>
+                                <!-- Five Elements Chart Col -->
+                                <div id="bazi-elements-chart" class="elements-chart-area"></div>
+                            </div>
+                        </div>
+
+                        <!-- 4 Pillars Area -->
+                        <div class="pillars-grid" id="bazi-pillars">
+                            <div class="pillar-col">
+                                <div class="p-age" id="p-h-age">时柱</div>
+                                <div class="p-god" id="p-h-god">--</div>
+                                <div class="p-stem" id="p-h-stem">--</div>
+                                <div class="p-branch" id="p-h-branch">--</div>
+                                <div class="p-hidden" id="p-h-hidden">--</div>
+                            </div>
+                            <div class="pillar-col DayMaster">
+                                <div class="p-age" id="p-d-age">日柱</div>
+                                <div class="p-god" id="p-d-god">日元</div>
+                                <div class="p-stem" id="p-d-stem">--</div>
+                                <div class="p-branch" id="p-d-branch">--</div>
+                                <div class="p-hidden" id="p-d-hidden">--</div>
+                            </div>
+                            <div class="pillar-col">
+                                <div class="p-age" id="p-m-age">月柱</div>
+                                <div class="p-god" id="p-m-god">--</div>
+                                <div class="p-stem" id="p-m-stem">--</div>
+                                <div class="p-branch" id="p-m-branch">--</div>
+                                <div class="p-hidden" id="p-m-hidden">--</div>
+                            </div>
+                            <div class="pillar-col">
+                                <div class="p-age" id="p-y-age">年柱</div>
+                                <div class="p-god" id="p-y-god">--</div>
+                                <div class="p-stem" id="p-y-stem">--</div>
+                                <div class="p-branch" id="p-y-branch">--</div>
+                                <div class="p-hidden" id="p-y-hidden">--</div>
+                            </div>
+                            <!-- Current Luck Pillars -->
+                            <div class="pillar-col LuckPillar">
+                                <div class="p-age" id="p-luck-age">--</div>
+                                <div class="p-god" id="p-luck-god">--</div>
+                                <div class="p-stem" id="p-luck-stem">--</div>
+                                <div class="p-branch" id="p-luck-branch">--</div>
+                                <div class="p-hidden" id="p-luck-hidden">--</div>
+                            </div>
+                            <div class="pillar-col LuckPillar">
+                                <div class="p-age" id="p-annual-age">--</div>
+                                <div class="p-god" id="p-annual-god">--</div>
+                                <div class="p-stem" id="p-annual-stem">--</div>
+                                <div class="p-branch" id="p-annual-branch">--</div>
+                                <div class="p-hidden" id="p-annual-hidden">--</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Great Luck Cycles Area -->
+                    <div class="luck-card mt-15">
+                        <div class="card-title">大运排盘</div>
+                        <div class="luck-grid" id="luck-list">
+                            <!-- Dynamic Content -->
+                        </div>
+                    </div>
+                    
+                    <!-- Annual Luck Section -->
+                    <div class="luck-card mt-15">
+                        <div class="card-title">流年排盘</div>
+                        <div class="luck-grid" id="annual-list">
+                            <!-- JS driven -->
+                        </div>
+                    </div>
+
+                    <!-- Monthly Luck Section -->
+                    <div class="luck-card mt-15">
+                        <div class="card-title">流月排盘 / 二十四节气</div>
+                        <div class="monthly-grid" id="monthly-list">
+                            <!-- JS driven -->
+                        </div>
+                        <div class="solar-grid mt-0" id="solar-list">
+                            <!-- JS driven -->
+                        </div>
+
+                    </div>
+
+
+                </div>
+            </div>
+        </section>
+ 
+        <!-- View 5: Di Tian Shui Reference (滴天髓参考资料) -->
+        <section id="view-book" class="app-view">
+            <header class="view-header">
+                <h2 style="color: #1688B5;">滴天髓</h2>
+            </header>
+            <div class="view-content scroll-y">
+                <div class="book-container">
+                    <img src="img/DiTianBook .png?v=2" alt="参考资料" class="book-image">
+                </div>
+            </div>
+        </section>
+
+
+
+        <!-- Fixed Bottom Navigation Bar (Pages 2, 3, 4) -->
+        <nav id="bottom-nav" style="display:none;">
+            <button class="nav-item" data-view="view-input" id="nav-btn-input">
+                <img src="img/新建出生 Icon .png" alt="新建">
+                <span class="nav-label">新建</span>
+            </button>
+            <button class="nav-item" data-view="view-records" id="nav-btn-records">
+                <img src="img/命盘资料库 Icon .png" alt="资料">
+                <span class="nav-label">资料</span>
+            </button>
+            <button class="nav-item active" data-view="view-main" id="nav-btn-main">
+                <img src="img/BaZi 命盘 .png" alt="命盘">
+                <span class="nav-label">命盘</span>
+            </button>
+            <button class="nav-item" id="backup-btn">
+                <img src="img/backup.png" alt="备份">
+                <span class="nav-label">备份数据</span>
+            </button>
+            <div class="nav-divider"></div>
+            <button class="nav-item" data-view="view-book" id="nav-btn-book">
+                <img src="img/Book Icon .png" alt="资料">
+                <span class="nav-label">参考资料</span>
+            </button>
+
+            <button class="nav-item" id="snapshot-btn">
+                <img src="img/snapshot.png" alt="截图">
+                <span class="nav-label">截图</span>
+            </button>
+            <button class="nav-item" id="bg-change-btn">
+                <img src="img/Phone Wallpapper .png" alt="背景">
+                <span class="nav-label">更换背景</span>
+            </button>
+            <button class="nav-item" id="refresh-btn">
+                <img src="img/refresh.png" alt="清空">
+                <span class="nav-label">清空</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Hidden Utils -->
+    <input type="file" id="bg-upload-input" accept="image/*" style="display:none">
+    <button id="save-backup-btn" style="display:none"></button>
+    <div id="bg-layer" class="bg-layer"></div>
+    <div id="context-menu" class="context-menu" style="display: none;">
+        <ul>
+            <li id="menu-rename">重命名</li>
+            <li id="menu-delete" class="danger">删除</li>
+        </ul>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="js/lunar.js"></script>
+    <script src="js/li_chun_data.js"></script>
+    <script src="js/bazi_utils.js"></script>
+    <script src="js/logo-b64.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/cursor.js"></script>
+    <!-- Custom Touch Cursor -->
+    <div id="custom-cursor"></div>
+</body>
+</html>
+
