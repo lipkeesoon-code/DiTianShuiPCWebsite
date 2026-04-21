@@ -1,26 +1,39 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title> 滴天髓八字 (Di Tian Shui BaZi) </title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&family=Outfit:wght@400;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&family=Outfit:wght@400;600&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1688B5">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="滴天髓">
-    <link rel="apple-touch-icon" href="img/AppIcon.png">
     <style>
         /* Essential base fix for mobile view before CSS loads completely */
-        body, html { width: 100%; height: 100%; overflow: hidden; position: fixed; overscroll-behavior: none; margin: 0; padding: 0; }
-        #phone-container { width: 100%; height: 100%; position: relative; }
+        body,
+        html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: fixed;
+            overscroll-behavior: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        #phone-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
     </style>
 </head>
+
 <body>
     <div id="phone-container">
-        
+
         <!-- View 1: Login/Security -->
         <section id="view-login" class="app-view active">
             <div class="login-wrapper">
@@ -58,8 +71,8 @@
                     <div class="panel-card">
                         <label class="card-label">西历 (公历)</label>
                         <div class="date-row">
-                            <select id="greg-year"></select> 
-                            <select id="greg-month"></select> 
+                            <select id="greg-year"></select>
+                            <select id="greg-month"></select>
                             <select id="greg-day"></select>
                         </div>
                         <div class="time-row mt-10">
@@ -83,8 +96,10 @@
                         <div class="input-group mt-10">
                             <span>性别:</span>
                             <div class="radio-pill">
-                                <label><input type="radio" name="gender" value="M" checked> <span class="gender-label-m">男</span></label>
-                                <label><input type="radio" name="gender" value="F"> <span class="gender-label-f">女</span></label>
+                                <label><input type="radio" name="gender" value="M" checked> <span
+                                        class="gender-label-m">男</span></label>
+                                <label><input type="radio" name="gender" value="F"> <span
+                                        class="gender-label-f">女</span></label>
 
                             </div>
                         </div>
@@ -197,7 +212,7 @@
                             <!-- Dynamic Content -->
                         </div>
                     </div>
-                    
+
                     <!-- Annual Luck Section -->
                     <div class="luck-card mt-15">
                         <div class="card-title">流年排盘</div>
@@ -222,7 +237,7 @@
                 </div>
             </div>
         </section>
- 
+
         <!-- View 5: Di Tian Shui Reference (滴天髓参考资料) -->
         <section id="view-book" class="app-view">
             <header class="view-header">
@@ -297,5 +312,5 @@
     <!-- Custom Touch Cursor -->
     <div id="custom-cursor"></div>
 </body>
-</html>
 
+</html>
