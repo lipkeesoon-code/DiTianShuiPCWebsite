@@ -1,0 +1,18 @@
+{
+  "name": "滴天髓八字 (Di Tian Shui BaZi)",
+  "short_name": "滴天髓",
+  "description": "专业滴天髓八字命盘分析软件",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#0a192f",
+  "theme_color": "#1688B5",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "img/AppIcon.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
