@@ -1,3 +1,9 @@
+Domains
+di-tian-shui-ba-zi-phone-website-ap.vercel.app
+
+
+~ 帮忙更新Update GitHub 这份的最新版本 ，然后 Vercel 运作 
+
 安全管理门槛：
 您要求的安全认证已实装。启动后会进入登录界面，只有输入正确的管理员信息才能进入系统。
 初始管理员账号：admin@ziwi.com
