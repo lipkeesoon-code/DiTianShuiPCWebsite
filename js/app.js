@@ -1542,16 +1542,20 @@ window.onclick = (e) => {
 function initBackgroundSystem() {
     const applyBg = (src) => {
         const overlay = document.getElementById('dashboard-bg-overlay');
-        const chartArea = document.getElementById('chart-area-pc');
-        const bgValue = src ? `url("${src}")` : 'none';
-
-        if (overlay) overlay.style.backgroundImage = bgValue;
-        if (chartArea) {
-            chartArea.style.backgroundImage = bgValue;
-            chartArea.style.backgroundSize = 'cover';
-            chartArea.style.backgroundPosition = 'center';
-            chartArea.style.backgroundRepeat = 'no-repeat';
+        const bgValue = src ? `url("${src}")` : '';
+        
+        if (overlay) {
+            overlay.style.backgroundImage = bgValue;
+            overlay.style.backgroundSize = 'cover';
+            overlay.style.backgroundPosition = 'center';
         }
+        
+        // Also clear chartArea just in case
+        const chartArea = document.getElementById('chart-area-pc');
+        if (chartArea) chartArea.style.backgroundImage = 'none';
+        
+        // Clear body background override
+        document.body.style.backgroundImage = '';
     };
 
     // Load saved background immediately

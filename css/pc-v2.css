@@ -13,8 +13,7 @@
 }
 
 html, body {
-    background: url('../img/imgi_392_pastel-flower-background-soft-floral-design-color-palettes-dreamy-delicat.jpg') no-repeat center center fixed !important;
-    background-size: cover !important;
+    background-color: #f8fafc;
     margin: 0;
     overflow: hidden;
     width: 100%;
@@ -63,6 +62,7 @@ html, body {
     width: calc(100% - var(--sidebar-width, 320px));
     height: 100%;
     z-index: 0;
+    background-image: url('../img/imgi_392_pastel-flower-background-soft-floral-design-color-palettes-dreamy-delicat.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
