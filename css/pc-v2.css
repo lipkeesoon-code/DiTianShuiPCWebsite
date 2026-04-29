@@ -21,7 +21,7 @@ html, body {
     height: 100%;
 }
 
-#phone-container, .app-view, #dashboard-container {
+#pc-app-container, .app-view, #dashboard-container {
     background: transparent !important;
 }
 
@@ -38,7 +38,7 @@ html, body {
     display: none !important; /* Temporarily disabled to ensure body background shows */
 }
 
-#phone-container {
+#pc-app-container {
     max-width: none !important;
     width: 100vw !important;
     height: 100vh !important;

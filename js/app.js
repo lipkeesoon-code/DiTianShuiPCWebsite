@@ -16,7 +16,7 @@ const State = {
 
 
 const UI = {
-    phoneContainer: document.getElementById('phone-container'),
+    pcAppContainer: document.getElementById('pc-app-container'),
     dashboardContainer: document.getElementById('dashboard-container'),
     bottomNav: document.getElementById('bottom-nav'),
     views: document.querySelectorAll('.app-view'),
@@ -178,7 +178,7 @@ function switchView(viewId) {
     if (viewId === 'dashboard-container') {
         UI.dashboardContainer.classList.add('dashboard-active');
         UI.views.forEach(v => v.classList.remove('active'));
-        UI.phoneContainer.classList.add('dashboard-view-active');
+        UI.pcAppContainer.classList.add('dashboard-view-active');
         document.body.classList.add('pc-mode');
     } else {
         UI.views.forEach(v => v.classList.remove('active'));
