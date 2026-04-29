@@ -5,7 +5,8 @@ const State = {
     records: JSON.parse(localStorage.getItem('ziwi_records')) || [],
     defaultGroupId: localStorage.getItem('ziwi_default_group') || '',
     currentActiveRecord: null,
-    isLoggedIn: localStorage.getItem('ziwi_auth') === 'true',
+    isLoggedIn: sessionStorage.getItem('ziwi_auth_passed') === 'true',
+    isFirstStagePassed: sessionStorage.getItem('ziwi_first_stage') === 'true',
     lastUsedGroupId: localStorage.getItem('ziwi_last_used_group') || '',
     collapsedGroups: new Set(JSON.parse(localStorage.getItem('ziwi_collapsed_groups')) || []),
     browsingYear: 2026,
@@ -16,53 +17,64 @@ const State = {
 
 const UI = {
     phoneContainer: document.getElementById('phone-container'),
+    dashboardContainer: document.getElementById('dashboard-container'),
     bottomNav: document.getElementById('bottom-nav'),
     views: document.querySelectorAll('.app-view'),
     navItems: document.querySelectorAll('.nav-item'),
-    
+    navIconBtns: document.querySelectorAll('.nav-icon-btn'),
+
     // Login
     loginEmail: document.getElementById('login-email'),
     loginPass: document.getElementById('login-pass'),
     btnLogin: document.getElementById('btn-login'),
     loginError: document.getElementById('login-error'),
-    
-    // Input
-    gregYear: document.getElementById('greg-year'),
-    gregMonth: document.getElementById('greg-month'),
-    gregDay: document.getElementById('greg-day'),
-    gregTime: document.getElementById('greg-time'),
-    lunarDisplay: document.getElementById('lunar-date-display'),
-    userName: document.getElementById('user-name'),
-    btnSaveChart: document.getElementById('btn-save-chart'),
-    btnNewChart: document.getElementById('btn-new-chart'),
 
-    // Records
-    groupList: document.getElementById('group-list'),
-    addGroupBtn: document.getElementById('add-group-btn'),
+    // Security Questions
+    secQ1: document.getElementById('sec-q1'),
+    secQ2: document.getElementById('sec-q2'),
+    secQ3: document.getElementById('sec-q3'),
+    secQ4: document.getElementById('sec-q4'),
+    secQ5: document.getElementById('sec-q5'),
+    btnSecSubmit: document.getElementById('btn-sec-submit'),
+    secError: document.getElementById('sec-error'),
+
+    // Input (PC Focused)
+    gregYear: document.getElementById('greg-year-pc'),
+    gregMonth: document.getElementById('greg-month-pc'),
+    gregDay: document.getElementById('greg-day-pc'),
+    gregTime: document.getElementById('greg-time-pc'),
+    lunarDisplay: document.getElementById('lunar-display-pc'),
+    userName: document.getElementById('user-name-pc'),
+    btnSaveChart: document.getElementById('btn-save-chart-pc'),
+    btnNewChart: document.getElementById('btn-new-chart-pc'),
+
+    // Records (PC Focused)
+    groupList: document.getElementById('group-list-pc'),
+    addGroupBtn: document.getElementById('add-group-btn-pc'),
+    importBtn: document.getElementById('import-btn-pc'),
+    importFileInput: document.getElementById('import-file-input'), // Shared or hidden
 
     // Context Menu
     contextMenu: document.getElementById('context-menu'),
     menuRename: document.getElementById('menu-rename'),
     menuDelete: document.getElementById('menu-delete'),
-    
-    // Main Board
-    mainBoard: document.getElementById('chart-area-mobile'),
-    cName: document.getElementById('c-name'),
-    cGregorian: document.getElementById('c-gregorian'),
-    cLunar: document.getElementById('c-lunar'),
-    cGender: document.getElementById('c-gender'),
-    cAge: document.getElementById('c-age'),
-    
-    // Global Funcs
-    snapshotBtn: document.getElementById('snapshot-btn'),
-    backupBtn: document.getElementById('backup-btn'),
-    importBtn: document.getElementById('import-btn'),
-    importFileInput: document.getElementById('import-file-input'),
-    refreshBtn: document.getElementById('refresh-btn'),
-    bgChangeBtn: document.getElementById('bg-change-btn'),
+
+    // Main Board (PC Focused)
+    mainBoard: document.getElementById('chart-area-pc'),
+    cName: document.getElementById('c-name-pc'),
+    cGregorian: document.getElementById('c-gregorian-pc'),
+    cLunar: document.getElementById('c-lunar-pc'),
+    cGender: document.getElementById('c-gender-pc'),
+
+    // Global Funcs (PC Focused)
+    snapshotBtn: document.getElementById('snapshot-btn-pc'),
+    backupBtn: document.getElementById('backup-btn-pc'),
+    refreshBtn: document.getElementById('refresh-btn-pc'),
+    bgChangeBtn: document.getElementById('bg-change-btn-pc'),
     bgUploadInput: document.getElementById('bg-upload-input'),
     bgLayer: document.getElementById('bg-layer'),
-    btnLogoutSystem: document.getElementById('btn-logout-system')
+    dashboardBgOverlay: document.getElementById('dashboard-bg-overlay'),
+    btnLogoutSystem: document.getElementById('logout-btn-pc')
 };
 
 // --- Context Menu State & Logic ---
@@ -76,21 +88,21 @@ const ContextMenuState = {
 function showContextMenu(e, type, data) {
     e.preventDefault();
     e.stopPropagation();
-    
+
     ContextMenuState.visible = true;
     ContextMenuState.targetType = type;
     ContextMenuState.targetData = data;
-    
+
     UI.contextMenu.style.display = 'block';
-    
+
     // Position menu
     let x = e.pageX || (e.touches ? e.touches[0].pageX : 0);
     let y = e.pageY || (e.touches ? e.touches[0].pageY : 0);
-    
+
     // Constrain to screen
     const menuWidth = 120;
     if (x + menuWidth > window.innerWidth) x -= menuWidth;
-    
+
     UI.contextMenu.style.left = x + 'px';
     UI.contextMenu.style.top = y + 'px';
 }
@@ -103,7 +115,7 @@ function hideContextMenu() {
 function handleManagementEvents(el, type, data) {
     // 1. Right Click (PC)
     el.oncontextmenu = (e) => showContextMenu(e, type, data);
-    
+
     // 2. Long Press (Mobile)
     el.ontouchstart = (e) => {
         ContextMenuState.longPressTimer = setTimeout(() => {
@@ -121,10 +133,10 @@ function handleManagementEvents(el, type, data) {
 function handleRename() {
     const { targetType, targetData } = ContextMenuState;
     if (!targetData) return;
-    
+
     const oldName = targetType === 'group' ? targetData.name : targetData.name;
     const newName = prompt("请输入新名称:", oldName);
-    
+
     if (newName && newName.trim() !== "") {
         if (targetType === 'group') {
             const group = State.groups.find(g => g.id === targetData.id);
@@ -142,7 +154,7 @@ function handleRename() {
 function handleDelete() {
     const { targetType, targetData } = ContextMenuState;
     if (!targetData) return;
-    
+
     if (confirm(`确定要删除 ${targetType === 'group' ? '群组' : '记录'}: ${targetData.name} 吗？`)) {
         if (targetType === 'group') {
             if (targetData.id === 'default') {
@@ -162,24 +174,57 @@ function handleDelete() {
 
 // --- View Router ---
 function switchView(viewId) {
-    UI.views.forEach(v => v.classList.remove('active'));
-    UI.navItems.forEach(item => item.classList.remove('active'));
+    // Hide mobile views and show PC dashboard if authenticated
+    if (viewId === 'dashboard-container') {
+        UI.dashboardContainer.classList.add('dashboard-active');
+        UI.views.forEach(v => v.classList.remove('active'));
+        UI.phoneContainer.classList.add('dashboard-view-active');
+        document.body.classList.add('pc-mode');
+    } else {
+        UI.views.forEach(v => v.classList.remove('active'));
+        const targetView = document.getElementById(viewId);
+        if (targetView) targetView.classList.add('active');
 
-    const targetView = document.getElementById(viewId);
-    if (targetView) targetView.classList.add('active');
+        // If it's the login or security view, ensure dashboard is hidden
+        if (viewId === 'view-login' || viewId === 'view-security') {
+            UI.dashboardContainer.classList.remove('dashboard-active');
+        }
+    }
+
+    // Handle nav items
+    UI.navItems.forEach(item => item.classList.remove('active'));
+    UI.navIconBtns.forEach(btn => btn.classList.remove('active'));
 
     const targetNav = Array.from(UI.navItems).find(i => i.dataset.view === viewId);
     if (targetNav) targetNav.classList.add('active');
+
+    const targetIconBtn = Array.from(UI.navIconBtns).find(i => i.dataset.view === viewId);
+    if (targetIconBtn) targetIconBtn.classList.add('active');
 }
 
 // --- Auth System ---
 const ADMIN_EMAIL = "lipkeesoon@hotmail.com";
 const ADMIN_PASS = "matahari521413";
 
+const SecurityAnswers = {
+    q1: "富士山下",
+    q2: "拉丁花园",
+    q3: "七杀武曲",
+    q4: "马大医院",
+    q5: "宝石戏院"
+};
+
 function checkAuth() {
     if (State.isLoggedIn) {
-        UI.bottomNav.style.display = 'flex';
-        switchView('view-records'); // Landing page set to records list
+        UI.bottomNav.style.display = 'none'; // Replaced by sidebar on PC
+        switchView('dashboard-container');
+        setTimeout(() => {
+            renderGroups();
+            resetToToday();
+        }, 100);
+    } else if (State.isFirstStagePassed) {
+        UI.bottomNav.style.display = 'none';
+        switchView('view-security');
     } else {
         UI.bottomNav.style.display = 'none';
         switchView('view-login');
@@ -190,11 +235,42 @@ UI.btnLogin.onclick = () => {
     const email = UI.loginEmail.value.trim().toLowerCase();
     const pass = UI.loginPass.value.trim();
     if (email === ADMIN_EMAIL.toLowerCase() && pass === ADMIN_PASS) {
-        State.isLoggedIn = true;
-        localStorage.setItem('ziwi_auth', 'true');
+        State.isFirstStagePassed = true;
+        sessionStorage.setItem('ziwi_first_stage', 'true');
         checkAuth();
     } else {
         UI.loginError.textContent = "账户或密码错误，请检查输入。";
+    }
+};
+
+UI.btnSecSubmit.onclick = () => {
+    const a1 = UI.secQ1.value.trim();
+    const a2 = UI.secQ2.value.trim();
+    const a3 = UI.secQ3.value.trim();
+    const a4 = UI.secQ4.value.trim();
+    const a5 = UI.secQ5.value.trim();
+
+    if (a1 === SecurityAnswers.q1 && 
+        a2 === SecurityAnswers.q2 && 
+        a3 === SecurityAnswers.q3 && 
+        a4 === SecurityAnswers.q4 && 
+        a5 === SecurityAnswers.q5) {
+        
+        State.isLoggedIn = true;
+        sessionStorage.setItem('ziwi_auth_passed', 'true');
+        checkAuth();
+    } else {
+        UI.secError.textContent = "安全问题答案不正确，请重新输入。";
+    }
+};
+
+UI.btnLogoutSystem.onclick = () => {
+    if (confirm("确定要退出系统吗？")) {
+        State.isLoggedIn = false;
+        State.isFirstStagePassed = false;
+        sessionStorage.removeItem('ziwi_auth_passed');
+        sessionStorage.removeItem('ziwi_first_stage');
+        checkAuth();
     }
 };
 
@@ -207,18 +283,19 @@ function saveState() {
 }
 
 const TimePeriods = [
-    { zhi: "子", label: "子时 (11pm-1am)" }, { zhi: "丑", label: "丑时 (1am-3am)" },
-    { zhi: "寅", label: "寅时 (3am-5am)" }, { zhi: "卯", label: "卯时 (5am-7am)" },
-    { zhi: "辰", label: "辰时 (7am-9am)" }, { zhi: "巳", label: "巳时 (9am-11am)" },
-    { zhi: "午", label: "午时 (11am-1pm)" }, { zhi: "未", label: "未时 (1pm-3pm)" },
-    { zhi: "申", label: "申时 (3pm-5pm)" }, { zhi: "酉", label: "酉时 (5pm-7pm)" },
-    { zhi: "戌", label: "戌时 (7pm-9pm)" }, { zhi: "亥", label: "亥时 (9pm-11pm)" }
+    { zhi: "子", label: "子时11pm-1am" }, { zhi: "丑", label: "丑时1am-3am" },
+    { zhi: "寅", label: "寅时3am-5am" }, { zhi: "卯", label: "卯时5am-7am" },
+    { zhi: "辰", label: "辰时7am-9am" }, { zhi: "巳", label: "巳时9am-11am" },
+    { zhi: "午", label: "午时11am-1pm" }, { zhi: "未", label: "未时1pm-3pm" },
+    { zhi: "申", label: "申时3pm-5pm" }, { zhi: "酉", label: "酉时5pm-7pm" },
+    { zhi: "戌", label: "戌时7pm-9pm" }, { zhi: "亥", label: "亥时9pm-11pm" }
 ];
 
 function initDropdowns() {
     for (let y = 1910; y <= 2150; y++) UI.gregYear.add(new Option(y + '年', y));
     for (let m = 1; m <= 12; m++) UI.gregMonth.add(new Option(m + '月', m));
     updateDaysDropdown();
+    // Use the descriptive labels for time slots as seen in screenshot
     TimePeriods.forEach(tp => UI.gregTime.add(new Option(tp.label, tp.zhi)));
     [UI.gregYear, UI.gregMonth, UI.gregDay, UI.gregTime].forEach(el => {
         el.addEventListener('change', () => {
@@ -247,21 +324,23 @@ function updateLunarDisplay() {
     try {
         const bazi = BaziUtils.calculatePillars(y, m, d, hourZhi);
         const lunar = LunarTools.solar2lunar(y, m, d);
-        
+
         const dateObj = new Date(y, m - 1, d);
         const dayOfWeek = dateObj.getDay();
         const dayNames = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
-        
-        let weekdayClass = 'wd-weekday';
-        if (dayOfWeek === 0) weekdayClass = 'wd-sun';
-        else if (dayOfWeek === 6) weekdayClass = 'wd-sat';
-        
+
+        // Compact single-line format as per screenshot
+        // e.g. "丙午年 三月 初六 未时 星期三"
+        const lunarDetail = `${bazi.year.stem}${bazi.year.branch}年 ${lunar.IMonthCn} ${lunar.IDayCn} ${hourZhi}时 ${dayNames[dayOfWeek]}`;
+
         UI.lunarDisplay.innerHTML = `
-            <div class="lunar-date-row">${bazi.year.stem}${bazi.year.branch}年 ${lunar.lMonth}月 ${lunar.lDay}日 ${hourZhi}时</div>
-            <div class="lunar-weekday-row ${weekdayClass}">${dayNames[dayOfWeek]} ${bazi.isYearTransition ? '<span style="color:red; margin-left:8px;">今日立春</span>' : ''}</div>
+            <div class="lunar-info-line">
+                ${lunarDetail}
+                ${bazi.isYearTransition ? '<span style="color:red; font-weight:bold; margin-left:10px;">(立春)</span>' : ''}
+            </div>
         `;
-    } catch (e) { 
-        UI.lunarDisplay.textContent = '---'; 
+    } catch (e) {
+        UI.lunarDisplay.textContent = '---';
     }
 }
 
@@ -280,24 +359,29 @@ function resetToToday() {
 function renderGroups() {
     if (!UI.groupList) return;
     UI.groupList.innerHTML = '';
-    
+
     State.groups.forEach(g => {
         const groupRecords = State.records.filter(r => r.groupId === g.id);
         const gWrapper = document.createElement('div');
         gWrapper.className = 'group-wrapper';
         const isCollapsed = State.collapsedGroups.has(g.id);
         const isActive = State.lastUsedGroupId === g.id;
-        
+
         const gHeader = document.createElement('div');
         gHeader.className = `group-header ${isCollapsed ? 'collapsed' : ''}`;
-        gHeader.innerHTML = `<span class="group-radio-dot ${isActive?'active':''}"></span> 📂 ${g.name}`;
-        
+        gHeader.innerHTML = `<span class="group-radio-dot ${isActive ? 'active' : ''}"></span> 📂 ${g.name}`;
+
+        // Single click only for the radio dot
         gHeader.onclick = (e) => {
             if (e.target.classList.contains('group-radio-dot')) {
                 State.lastUsedGroupId = g.id;
                 saveState(); renderGroups();
                 return;
             }
+        };
+
+        // Double click for collapse/expand
+        gHeader.ondblclick = (e) => {
             if (State.collapsedGroups.has(g.id)) State.collapsedGroups.delete(g.id);
             else State.collapsedGroups.add(g.id);
             saveState(); renderGroups();
@@ -305,23 +389,24 @@ function renderGroups() {
 
         gWrapper.appendChild(gHeader);
         handleManagementEvents(gHeader, 'group', g);
-        
+
         if (!isCollapsed) {
             groupRecords.forEach(r => {
                 const rDiv = document.createElement('div');
                 rDiv.className = `record-item ${State.currentActiveRecord?.id === r.id ? 'active' : ''}`;
-                const genderTag = r.gender === 'M' ? '<span class="gender-m">(男)</span>' : '<span class="gender-f">(女)</span>';
-                
+
+                const genderClass = r.gender === 'M' ? 'gender-m' : 'gender-f';
+                const genderChar = r.gender === 'M' ? '男' : '女';
 
                 rDiv.innerHTML = `
                     <div class="record-info">
-                        <div class="name-row">📄 ${r.name} ${genderTag}</div>
-                        <div class="date-row">${r.gregYear}/${r.gregMonth}/${r.gregDay} ${r.gregTime}时</div>
+                        <div class="name-row">📄 ${r.name} <span class="${genderClass}">(${genderChar})</span></div>
+                        <div class="date-row">${r.gregYear}年${r.gregMonth}月${r.gregDay}日 ${r.gregTime}时</div>
                     </div>
                 `;
                 rDiv.onclick = () => {
-                    switchView('view-main');
-                    setTimeout(() => renderMainBoard(r), 60);
+                    switchView('dashboard-container');
+                    renderMainBoard(r);
                 };
                 handleManagementEvents(rDiv, 'record', r);
                 gWrapper.appendChild(rDiv);
@@ -349,9 +434,9 @@ function renderMainBoard(record) {
     try {
         const hourZhi = record.gregTime || "子";
         bazi = BaziUtils.calculatePillars(
-            parseInt(record.gregYear), 
-            parseInt(record.gregMonth), 
-            parseInt(record.gregDay), 
+            parseInt(record.gregYear),
+            parseInt(record.gregMonth),
+            parseInt(record.gregDay),
             hourZhi
         );
         age = 2026 - parseInt(record.gregYear) + 1;
@@ -360,61 +445,83 @@ function renderMainBoard(record) {
         return;
     }
 
-    UI.cName.textContent = record.name;
-    
-    // Task 018: Merge Gender and Age into one row with character-specific coloring
-    const ageRow = document.getElementById('c-age-row');
-    if (ageRow) {
-        const genderChar = record.gender === 'M' ? '男' : '女';
-        const genderClass = record.gender === 'M' ? 'color-male' : 'color-female';
-        ageRow.innerHTML = `性别：<span class="${genderClass}">${genderChar}</span> &nbsp;&nbsp; 虚岁：${age}`;
+    if (UI.cName) {
+        UI.cName.textContent = record.name || '未知';
+        UI.cName.style.setProperty('font-size', '2.4rem', 'important'); // Reset
+        
+        // Auto-shrink font size if it exceeds 2 lines
+        // For 2.4rem with 1.2 line-height, 2 lines is about 92px.
+        // We check if it's > 95px to trigger shrink.
+        setTimeout(() => {
+            let fontSize = 2.4;
+            while (UI.cName.offsetHeight > 95 && fontSize > 1.2) {
+                fontSize -= 0.1;
+                UI.cName.style.setProperty('font-size', fontSize + 'rem', 'important');
+            }
+        }, 100); 
     }
 
-    UI.cGregorian.textContent = `${record.gregYear}-${record.gregMonth}-${record.gregDay} ${record.gregTime}时`;
-    
+    const genderChar = record.gender === 'M' ? '男' : '女';
+    const hourZhi = record.gregTime || "子";
     const lunar = LunarTools.solar2lunar(parseInt(record.gregYear), parseInt(record.gregMonth), parseInt(record.gregDay));
-    UI.cLunar.textContent = `${lunar.gzYear} ${lunar.IMonthCn}${lunar.IDayCn}`;
+
+    if (UI.cGregorian) UI.cGregorian.textContent = `西历: ${record.gregYear} 年${record.gregMonth}月${record.gregDay}日 ${hourZhi}时`;
+    if (UI.cLunar) UI.cLunar.textContent = `农历: ${bazi.year.stem}${bazi.year.branch}年 ${lunar.IMonthCn}${lunar.IDayCn}`;
+    if (UI.cGender) {
+        const genderClass = record.gender === 'M' ? 'gender-m' : 'gender-f';
+        UI.cGender.innerHTML = `性别: <span class="${genderClass}">${genderChar}</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;虚岁: ${age}`;
+    }
 
     const renderPillar = (pKey, data, ageLabel, statusClass) => {
-        const stemEl = document.getElementById(`p-${pKey}-stem`);
-        const branchEl = document.getElementById(`p-${pKey}-branch`);
-        const godEl = document.getElementById(`p-${pKey}-god`);
-        const hiddenEl = document.getElementById(`p-${pKey}-hidden`);
-        const ageEl = document.getElementById(`p-${pKey}-age`);
-        const colEl = stemEl?.closest('.pillar-col');
+        const stemEl = document.getElementById(`p-${pKey}-stem-pc`);
+        const branchEl = document.getElementById(`p-${pKey}-branch-pc`);
+        const godEl = document.getElementById(`p-${pKey}-god-pc`);
+        const hiddenEl = document.getElementById(`p-${pKey}-hidden-pc`);
+        const ageEl = document.getElementById(`p-${pKey}-age-pc`);
+        const colEl = document.getElementById(`p-${pKey}-col-pc`);
 
         if (ageEl) {
             ageEl.innerHTML = ageLabel || '';
+            // Task: Handle age-based font size for luck pillars (Tier 1, last 2 pillars)
+            if (pKey === 'luck' || pKey === 'annual') {
+                const ageVal = data ? data.age : 0;
+                if (ageVal > 99) {
+                    ageEl.style.setProperty('font-size', '12px', 'important');
+                } else {
+                    ageEl.style.setProperty('font-size', '13.6px', 'important');
+                }
+            }
         }
 
         if (colEl) {
-            colEl.classList.remove('StatusFire', 'StatusWater');
+            // Uniform grey design (except Day Master) - no longer adding element-based borders
             if (statusClass) colEl.classList.add(statusClass);
         }
 
         if (stemEl) {
             stemEl.textContent = data.stem;
-            stemEl.className = 'p-stem ' + getElementClass(data.stem);
+            stemEl.className = 'pillar-stem text-' + getElementClass(data.stem);
         }
         if (branchEl) {
             branchEl.textContent = data.branch;
-            branchEl.className = 'p-branch ' + getElementClass(data.branch);
+            branchEl.className = 'pillar-branch ' + getElementClass(data.branch);
         }
         if (godEl) {
             if (pKey === 'd') {
                 const genderChar = record.gender === 'M' ? '男' : '女';
-                godEl.innerHTML = `<span class="dm-badge ${getElementClass(data.stem)}">元${genderChar}</span>`;
-                godEl.className = 'p-god';
+                godEl.innerHTML = `元${genderChar}`;
+                godEl.className = 'pillar-god pillar-god-yuan bg-' + getElementClass(data.stem);
             } else {
                 godEl.textContent = BaziUtils.getTenGod(bazi.day.stem, data.stem);
-                godEl.className = 'p-god ' + getElementClass(data.stem);
+                godEl.className = 'pillar-god ' + getElementClass(data.stem);
             }
         }
         if (hiddenEl) {
             const hidden = BaziUtils.getHiddenStems(data.branch);
             const benQi = hidden[0];
             const god = BaziUtils.getTenGod(bazi.day.stem, benQi);
-            hiddenEl.innerHTML = `<div class="${getElementClass(benQi)}">${god}</div>`;
+            hiddenEl.innerHTML = god;
+            hiddenEl.className = 'pillar-hidden ' + getElementClass(benQi);
         }
     };
 
@@ -425,15 +532,11 @@ function renderMainBoard(record) {
 
     // --- Calculate & Render Current Luck Pillars ---
     const luckResult = BaziUtils.calculateGreatLuck(
-        record.gender, 
+        record.gender,
         bazi.year.stem, bazi.month.stem, bazi.month.branch,
         parseInt(record.gregYear), parseInt(record.gregMonth), parseInt(record.gregDay)
     );
 
-    // Actual Active Luck (for 2026)
-    const currentAge2026 = 2026 - parseInt(record.gregYear) + 1;
-    const actualActiveLuckIndex = luckResult.cycles.findIndex(lc => currentAge2026 >= lc.age && currentAge2026 < lc.age + 10);
-    
     // Browsing Active Luck
     let luckIndexToUse = State.browsingLuckIndex;
     if (luckIndexToUse === -1) {
@@ -451,61 +554,135 @@ function renderMainBoard(record) {
         renderPillar('annual', annualResult, `流年 ${annualResult.age}岁<br>${annualResult.year}`, '');
     }
 
-    const baziCard = document.querySelector('.bazi-card');
-    const oldBadge = baziCard.querySelector('.li-chun-badge');
-    if (oldBadge) oldBadge.remove();
-    if (bazi.isYearTransition) {
-        const badge = document.createElement('div');
-        badge.className = 'li-chun-badge';
-        badge.textContent = '今日立春';
-        baziCard.appendChild(badge);
+    const baziCard = document.querySelector('.bazi-card-pc');
+    if (baziCard) {
+        const oldBadge = baziCard.querySelector('.li-chun-badge');
+        if (oldBadge) oldBadge.remove();
+        if (bazi.isYearTransition) {
+            const badge = document.createElement('div');
+            badge.className = 'li-chun-badge';
+            badge.textContent = '今日立春';
+            baziCard.appendChild(badge);
+        }
     }
 
     renderLuckCycles(record, bazi);
     renderAnnualLuck(record, bazi);
     renderMonthlyLuck(record, bazi);
     renderSolarTerms(record, bazi);
-    
-    // Task: Five Elements Chart
-
 
     const scores = BaziUtils.calculateElementScores(bazi);
     renderFiveElementsChart(scores, bazi.day.stem);
+    renderBarChart(scores, bazi.day.stem);
+}
+
+function renderBarChart(scores, dayStem) {
+    const container = document.getElementById('bazi-bars-chart-pc');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const selfEl = BaziUtils.ELEMENTS[dayStem];
+    const elementsOrder = ['木', '火', '土', '金', '水'];
+
+    // Relationships mapping
+    const rels = [
+        { key: 'induce', label: '正印', label2: '偏印', element: '' },
+        { key: 'control', label: '正官', label2: '七杀', element: '' },
+        { key: 'self', label: '劫财', label2: '比肩', element: '' },
+        { key: 'wealth', label: '正财', label2: '偏财', element: '' },
+        { key: 'output', label: '伤官', label2: '食神', element: '' }
+    ];
+
+    // Find elements for each relation relative to self
+    const generationLoop = ['木', '火', '土', '金', '水'];
+    const selfIdx = generationLoop.indexOf(selfEl);
+
+    rels[0].element = generationLoop[(selfIdx + 4) % 5]; // Induce: Parent
+    rels[1].element = generationLoop[(selfIdx + 2) % 5]; // Control: Grandparent
+    rels[2].element = selfEl;                             // Self
+    rels[3].element = generationLoop[(selfIdx + 1) % 5]; // Wealth: Child-controlled
+    rels[4].element = generationLoop[(selfIdx + 1) % 5]; // Output: Child
+    // Wait, let's fix the circular relationships:
+    // Generate: Wood -> Fire -> Earth -> Metal -> Water -> Wood
+    // Relations to Self (S):
+    // Parent (P) -> S : Induce (印)
+    // S -> Child (C) : Output (食)
+    // S -> Victim (V) : Wealth (财)
+    // Enemy (E) -> S : Power (官)
+
+    const induceEl = generationLoop[(selfIdx + 4) % 5];
+    const outputEl = generationLoop[(selfIdx + 1) % 5];
+    const wealthEl = generationLoop[(selfIdx + 2) % 5];
+    const powerEl = generationLoop[(selfIdx + 3) % 5];
+
+    const chartData = [
+        { label: '正印', label2: '偏印', el: induceEl, score: scores[induceEl] },
+        { label: '正官', label2: '七杀', el: powerEl, score: scores[powerEl] },
+        { label: '劫财', label2: '比肩', el: selfEl, score: scores[selfEl] },
+        { label: '正财', label2: '偏财', el: wealthEl, score: scores[wealthEl] },
+        { label: '伤官', label2: '食神', el: outputEl, score: scores[outputEl] }
+    ];
+
+    const chartWrapper = document.createElement('div');
+    chartWrapper.className = 'bar-chart-container';
+
+    chartData.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'bar-row';
+
+        const labelGroup = document.createElement('div');
+        labelGroup.className = 'bar-label-group';
+        labelGroup.innerHTML = `<span class="text-${getElementClassForName(item.el)}">${item.label}</span>
+                               <span class="text-${getElementClassForName(item.el)}">${item.label2}</span>`;
+
+        const track = document.createElement('div');
+        track.className = 'bar-track';
+
+        const fill = document.createElement('div');
+        fill.className = 'bar-fill el-bg-' + getElementClassForName(item.el);
+        // Scores are out of 360 total roughly, max can be around 200+
+        const widthPercent = Math.min(100, (item.score / 150) * 100);
+        fill.style.width = '0%'; // For animation
+        setTimeout(() => fill.style.width = widthPercent + '%', 100);
+
+        const scoreTag = document.createElement('span');
+        scoreTag.className = 'god-multi-labels';
+        scoreTag.textContent = item.score;
+
+        track.appendChild(fill);
+        row.appendChild(labelGroup);
+        row.appendChild(track);
+        row.appendChild(scoreTag);
+        chartWrapper.appendChild(row);
+    });
+
+    container.appendChild(chartWrapper);
+}
+
+function getElementClassForName(elName) {
+    if (elName === '木') return 'wood';
+    if (elName === '火') return 'fire';
+    if (elName === '土') return 'earth';
+    if (elName === '金') return 'metal';
+    if (elName === '水') return 'water';
+    return '';
 }
 
 function renderFiveElementsChart(scores, dayStem) {
-    const container = document.getElementById('bazi-elements-chart');
+    const container = document.getElementById('bazi-elements-chart-pc');
     if (!container) return;
     container.innerHTML = '';
 
     const selfElement = BaziUtils.ELEMENTS[dayStem];
-    const elementsOrder = ['土', '金', '水', '木', '火']; // Generation clockwise loop
-    // Re-order to start from Self
-    const selfBaseIdx = elementsOrder.indexOf(selfElement);
-    const displayOrder = [];
-    for(let i=0; i<5; i++) {
-        displayOrder.push(elementsOrder[(selfBaseIdx + i) % 5]);
-    }
-
-    const elementToGods = {
-        '木': ['甲', '乙'], '火': ['丙', '丁'], '土': ['戊', '己'],
-        '金': ['庚', '辛'], '水': ['壬', '癸']
-    };
-
-    const chartWidth = 175;
-    const chartHeight = 150;
-    const centerX = chartWidth / 2;
-    const centerY = chartHeight / 2;
-    const r = 36; // Proportional doughnut radius
+    const elementsOrder = ['土', '金', '水', '木', '火']; 
+    const r = 52; 
     const selfScore = scores[selfElement];
-    
-    // Logic: Center the Self element at Top (-90 deg)
     let currentAngle = -90 - (selfScore / 2);
 
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.setAttribute("width", chartWidth);
-    svg.setAttribute("height", chartHeight);
-    svg.setAttribute("viewBox", `0 0 ${chartWidth} ${chartHeight}`);
+    svg.setAttribute("width", 300);
+    svg.setAttribute("height", 250);
+    svg.setAttribute("viewBox", "0 0 300 250");
     svg.classList.add("chart-svg");
 
     const labelsLayer = document.createElement('div');
@@ -514,129 +691,104 @@ function renderFiveElementsChart(scores, dayStem) {
     const getPoint = (angle, radius) => {
         const rad = (angle * Math.PI) / 180;
         return {
-            x: centerX + radius * Math.cos(rad),
-            y: centerY + radius * Math.sin(rad)
+            x: 150 + radius * Math.cos(rad),
+            y: 125 + radius * Math.sin(rad)
         };
     };
 
-    // Background Circle
     const bg = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-    bg.setAttribute("cx", centerX); bg.setAttribute("cy", centerY);
+    bg.setAttribute("cx", 150); bg.setAttribute("cy", 125);
     bg.setAttribute("r", r); bg.classList.add("chart-bg-circle");
     svg.appendChild(bg);
 
-    // Elegant Double-Line Inner Borders
     const lb1 = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-    lb1.setAttribute("cx", centerX); lb1.setAttribute("cy", centerY);
-    lb1.setAttribute("r", r - 6); lb1.classList.add("chart-inner-border");
+    lb1.setAttribute("cx", 150); lb1.setAttribute("cy", 125);
+    lb1.setAttribute("r", r - 10); lb1.classList.add("chart-inner-border");
     svg.appendChild(lb1);
 
-    const lb2 = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-    lb2.setAttribute("cx", centerX); lb2.setAttribute("cy", centerY);
-    lb2.setAttribute("r", r - 8); lb2.classList.add("chart-inner-border");
-    svg.appendChild(lb2);
-
-    // 1. Calculate each slice's ideal center angle
     const slices = [];
     let tempAngle = currentAngle;
+    const selfBaseIdx = elementsOrder.indexOf(selfElement);
+    const displayOrder = [];
+    for (let i = 0; i < 5; i++) displayOrder.push(elementsOrder[(selfBaseIdx + i) % 5]);
+
     displayOrder.forEach((el, i) => {
         const score = scores[el];
         slices.push({
             el: el,
-            targetMid: tempAngle + (score / 2),
-            score: score
+            angle: tempAngle + (score / 2),
+            score: score,
+            isSelf: i === 0
         });
         tempAngle += score;
     });
 
-    // 2. 2D Centroid Physics Engine (方格重心物理引擎)
-    const boxW = 56, boxH = 30; // Virtual bounding box per label
-    const boxes = slices.map((s, i) => {
-        const rad = (s.targetMid * Math.PI) / 180;
-        const initialR = r + 16; // Start very close
-        return {
-            x: centerX + initialR * Math.cos(rad),
-            y: centerY + initialR * Math.sin(rad),
-            angle: s.targetMid,
-            isSelf: i === 0
-        };
-    });
-
-    for (let iter = 0; iter < 100; iter++) { // 100 iterations for rock-solid stability
-        boxes.forEach((b1, i) => {
-            const rad = Math.atan2(b1.y - centerY, b1.x - centerX);
-            const cosA = Math.abs(Math.cos(rad));
-            const sinA = Math.abs(Math.sin(rad));
-            
-            // DYNAMIC SAFETY RADIUS (方格对角线防撞)
-            const halfBoxRadial = cosA * (boxW / 2) + sinA * (boxH / 2);
-            const minAllowed = r + halfBoxRadial + 6; 
-
-            // A. Attraction: Pull toward Cake Center (贴合大圆轨道)
-            const dist = Math.sqrt((b1.x - centerX) ** 2 + (b1.y - centerY) ** 2);
-            const targetR = minAllowed + 1; 
-            const attraction = (dist - targetR) * 0.2;
-            const dirX = (b1.x - centerX) / dist;
-            const dirY = (b1.y - centerY) / dist;
-            b1.x -= dirX * attraction;
-            b1.y -= dirY * attraction;
-
-            // B. Spring: Pull toward ideal angle
-            let aDiff = rad - (b1.angle * Math.PI) / 180;
-            while (aDiff > Math.PI) aDiff -= Math.PI * 2;
-            while (aDiff < -Math.PI) aDiff += Math.PI * 2;
-            const sForce = 0.12; // Increased for tighter alignment
-            const currentDist = Math.sqrt((b1.x - centerX) ** 2 + (b1.y - centerY) ** 2);
-            const newAngle = rad - aDiff * sForce;
-            b1.x = centerX + currentDist * Math.cos(newAngle);
-            b1.y = centerY + currentDist * Math.sin(newAngle);
-
-            // C. Collision: Push apart from other boxes
-            for (let j = i + 1; j < boxes.length; j++) {
-                const b2 = boxes[j];
-                const dx = b1.x - b2.x;
-                const dy = b1.y - b2.y;
-                const minDX = boxW + 4; 
-                const minDY = boxH + 2;
-                if (Math.abs(dx) < minDX && Math.abs(dy) < minDY) {
-                    const ox = minDX - Math.abs(dx);
-                    const oy = minDY - Math.abs(dy);
-                    if (ox < oy) {
-                        const push = (dx > 0 ? 1 : -1) * ox * 0.5;
-                        b1.x += push; b2.x -= push;
-                    } else {
-                        const push = (dy > 0 ? 1 : -1) * oy * 0.5;
-                        b1.y += push; b2.y -= push;
-                    }
+    const minAngleGap = 56; 
+    for (let iter = 0; iter < 10; iter++) {
+        for (let i = 1; i < slices.length; i++) {
+            if (slices[i].angle - slices[i-1].angle < minAngleGap) {
+                slices[i].angle = slices[i-1].angle + minAngleGap;
+            }
+        }
+        if ((slices[0].angle + 360) - slices[4].angle < minAngleGap) {
+            slices[4].angle = (slices[0].angle + 360) - minAngleGap;
+            for (let i = 3; i >= 1; i--) {
+                if (slices[i+1].angle - slices[i].angle < minAngleGap) {
+                    slices[i].angle = slices[i+1].angle - minAngleGap;
                 }
             }
-
-            // D. Cake Constraint: HARD Inner Barrier
-            const dInner = Math.sqrt((b1.x - centerX) ** 2 + (b1.y - centerY) ** 2);
-            if (dInner < minAllowed) {
-                const ratio = minAllowed / dInner;
-                b1.x = centerX + (b1.x - centerX) * ratio;
-                b1.y = centerY + (b1.y - centerY) * ratio;
-            }
-
-            // E. Containment Walls (防出界“硬围墙”)
-            // Card boundaries (175x150 relative to chart area)
-            // Top Wall: prevent clipping at the card header
-            if (b1.y < 18) b1.y = 18; 
-            // Right Wall: prevent clipping at phone edge
-            if (b1.x > 168) b1.x = 168;
-            // Bottom Wall
-            if (b1.y > 135) b1.y = 135;
-
-            // F. Anchor Self strictly to the Top
-            if (b1.isSelf) {
-                b1.x = centerX + (b1.x - centerX) * 0.05; 
-                if (b1.y > centerY - minAllowed) b1.y = centerY - minAllowed;
-            }
-        });
+        }
     }
 
-    // 3. Render slices and place labels
+    const elementToGods = {
+        '木': ['甲', '乙'], '火': ['丙', '丁'], '土': ['戊', '己'],
+        '金': ['庚', '辛'], '水': ['壬', '癸']
+    };
+
+    const boxes = slices.map(s => {
+        let bx, by;
+        if (s.isSelf) {
+            bx = 150; by = -14; // Rule 1: Fixed
+        } else {
+            const rad = (s.angle * Math.PI) / 180;
+            
+            // Calculate exact mathematically safe distance using Minkowski sum 
+            // of the circle and the label's rectangle.
+            const scaleX = 175 / 300; 
+            const scaleY = 150 / 250; 
+            const W = (82 / scaleX) / 2; // Scaled Half-width
+            const H = (50 / scaleY) / 2; // Scaled Half-height
+            const R = 64 + 12; // Pie chart outer radius + 12px safe padding
+            
+            const cosT = Math.abs(Math.cos(rad));
+            const sinT = Math.abs(Math.sin(rad));
+            
+            let d;
+            if (sinT / cosT <= H / (W + R)) {
+                // Hits right/left flat edge
+                d = (W + R) / cosT;
+            } else if (cosT / sinT <= W / (H + R)) {
+                // Hits top/bottom flat edge
+                d = (H + R) / sinT;
+            } else {
+                // Hits rounded corner
+                const b = -2 * (W * cosT + H * sinT);
+                const c = W * W + H * H - R * R;
+                d = (-b + Math.sqrt(b * b - 4 * c)) / 2;
+            }
+            
+            bx = 150 + Math.cos(rad) * d;
+            by = 125 + Math.sin(rad) * d;
+            
+            // Removed arbitrary hard clamping to allow labels to naturally overflow 
+            // the container boundaries just like the SVG does, ensuring they never 
+            // squeeze into the inner cake.
+        }
+
+        return { x: bx, y: by, el: s.el, score: s.score };
+    });
+
+    const boxW = 82, boxH = 50;
     let tempSumAngle = currentAngle;
     displayOrder.forEach((el, i) => {
         const score = scores[el];
@@ -651,33 +803,34 @@ function renderFiveElementsChart(scores, dayStem) {
         tempSumAngle += score;
 
         const labelDiv = document.createElement('div');
-        labelDiv.className = `element-label el-${getElementClassFromText(el)}`;
-        labelDiv.style.left = `${box.x - (boxW / 2)}px`;
-        labelDiv.style.top = `${box.y - (boxH / 2)}px`;
+        labelDiv.className = `element-label`;
+        // Use percentage mapping to perfectly align the 300x250 virtual coordinates 
+        // with the physical DOM Flexbox scaling of the SVG.
+        labelDiv.style.left = `calc(${(box.x / 300) * 100}% - ${boxW / 2}px)`;
+        labelDiv.style.top = `calc(${(box.y / 250) * 100}% - ${boxH / 2}px)`;
         labelDiv.style.width = `${boxW}px`;
+        labelDiv.style.height = `${boxH}px`;
 
-        const relX = box.x - centerX;
-        const relY = box.y - centerY;
-        let textAlign = (Math.abs(relX) < 15 && relY < 0) ? 'center' : (relX >= 0 ? 'left' : 'right');
-
-        // FIXED TEN GOD ORDER LOGIC (强制统一行规)
         const stems = elementToGods[el];
         let g1 = BaziUtils.getTenGod(dayStem, stems[0]);
         let g2 = BaziUtils.getTenGod(dayStem, stems[1]);
         const ROW1_TYPES = ['劫财', '伤官', '正财', '正官', '正印'];
-        if (ROW1_TYPES.includes(g2) && !ROW1_TYPES.includes(g1)) {
-            [g1, g2] = [g2, g1];
-        }
+        if (ROW1_TYPES.includes(g2) && !ROW1_TYPES.includes(g1)) [g1, g2] = [g2, g1];
+
+        const elementColors = {
+            '木': '#6d8e46', '火': '#f06292', '土': '#a17c5a', '金': '#ffb74d', '水': '#1689b6'
+        };
+        const activeColor = elementColors[el];
 
         labelDiv.innerHTML = `
-            <div class="text-group" style="text-align: ${textAlign}">
-                <div class="god-row">
-                    <span class="god-name">${g1}</span>
-                    <div class="chart-color-box bg-${getElementClassFromText(el)}"></div>
+            <div class="text-group" style="text-align: left; color: ${activeColor} !important; display: flex; flex-direction: column; align-items: flex-start;">
+                <div class="god-row" style="display: flex; align-items: center; gap: 4px; width: 100%; justify-content: flex-start;">
+                    <span class="god-name" style="min-width: 2em; text-align: left;">${g1}</span>
+                    <div class="chart-color-box" style="background-color: ${activeColor} !important; border: 1px solid ${activeColor} !important; flex-shrink: 0;"></div>
                 </div>
-                <div class="god-row">
-                    <span class="god-name">${g2}</span>
-                    <span class="score-text">${score}</span>
+                <div class="god-row" style="display: flex; align-items: center; gap: 4px; width: 100%; justify-content: flex-start;">
+                    <span class="god-name" style="min-width: 2em; text-align: left;">${g2}</span>
+                    <span class="score-text" style="font-weight: 700; margin-left: 2px;">${score}</span>
                 </div>
             </div>
         `;
@@ -685,7 +838,10 @@ function renderFiveElementsChart(scores, dayStem) {
     });
 
     const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    text.setAttribute("x", centerX); text.setAttribute("y", centerY);
+    text.setAttribute("x", 150);
+    text.setAttribute("y", 125);
+    text.setAttribute("dominant-baseline", "middle");
+    text.setAttribute("text-anchor", "middle");
     text.classList.add("chart-center-text", "fill-" + getElementClassFromText(selfElement));
     text.textContent = dayStem + selfElement;
     svg.appendChild(text);
@@ -713,16 +869,16 @@ function getElementClass(char) {
 }
 
 function renderLuckCycles(record, bazi) {
-    const luckList = document.getElementById('luck-list');
+    const luckList = document.getElementById('luck-list-pc');
     if (!luckList) return;
     luckList.innerHTML = '';
-    
+
     const luckResult = BaziUtils.calculateGreatLuck(
-        record.gender, 
+        record.gender,
         bazi.year.stem, bazi.month.stem, bazi.month.branch,
         parseInt(record.gregYear), parseInt(record.gregMonth), parseInt(record.gregDay)
     );
-    
+
     const actualCurrentYear = 2026;
     const currentAge2026 = actualCurrentYear - parseInt(record.gregYear) + 1;
     const actualActiveLuckIndex = luckResult.cycles.findIndex(lc => currentAge2026 >= lc.age && currentAge2026 < lc.age + 10);
@@ -737,7 +893,7 @@ function renderLuckCycles(record, bazi) {
     luckResult.cycles.forEach((luck, idx) => {
         const itemWrapper = document.createElement('div');
         itemWrapper.className = 'luck-item-wrapper';
-        
+
         const isActualCurrent = idx === actualActiveLuckIndex;
         const isBrowsingFocus = idx === luckIndexToUse;
         const isBrowsingMode = !isActualCurrent || State.browsingLuckIndex !== -1;
@@ -758,7 +914,7 @@ function renderLuckCycles(record, bazi) {
                 <div class="luck-god-mini ${getElementClass(luck.branch)}">${luck.branchGod}</div>
             </div>
         `;
-        
+
         itemWrapper.onclick = () => {
             State.browsingYear = luck.year;
             State.browsingLuckIndex = idx;
@@ -770,17 +926,17 @@ function renderLuckCycles(record, bazi) {
 }
 
 function renderAnnualLuck(record, bazi) {
-    const annualList = document.getElementById('annual-list');
+    const annualList = document.getElementById('annual-list-pc');
     if (!annualList) return;
     annualList.innerHTML = '';
-    
+
     // Determine the start year based on the selected Great Luck
     const luckResult = BaziUtils.calculateGreatLuck(
-        record.gender, 
+        record.gender,
         bazi.year.stem, bazi.month.stem, bazi.month.branch,
         parseInt(record.gregYear), parseInt(record.gregMonth), parseInt(record.gregDay)
     );
-    
+
     let luckIndexToUse = State.browsingLuckIndex;
     if (luckIndexToUse === -1) {
         const browsingAge = State.browsingYear - parseInt(record.gregYear) + 1;
@@ -789,19 +945,19 @@ function renderAnnualLuck(record, bazi) {
     const startYear = luckResult.cycles[luckIndexToUse]?.year || 2026;
 
     const annualResults = BaziUtils.calculateAnnualLuck(
-        bazi.day.stem, 
-        startYear, 
-        10, 
+        bazi.day.stem,
+        startYear,
+        10,
         parseInt(record.gregYear)
     );
-    
+
     annualResults.forEach((yearLuck) => {
         const itemWrapper = document.createElement('div');
         itemWrapper.className = 'luck-item-wrapper';
-        
+
         const isActualCurrentYear = yearLuck.year === 2026;
         const isBrowsingYear = yearLuck.year === State.browsingYear;
-        
+
         let highlightClass = '';
         if (isBrowsingYear) {
             highlightClass = isActualCurrentYear ? 'active-fire' : 'active-water';
@@ -817,7 +973,7 @@ function renderAnnualLuck(record, bazi) {
                 <div class="luck-god-mini ${getElementClass(yearLuck.branch)}">${yearLuck.branchGod}</div>
             </div>
         `;
-        
+
         itemWrapper.onclick = () => {
             State.browsingYear = yearLuck.year;
             // BrowsingLuckIndex remains the same as we are in the same 10-year cycle
@@ -829,49 +985,129 @@ function renderAnnualLuck(record, bazi) {
 }
 
 function renderMonthlyLuck(record, bazi) {
-    const monthlyList = document.getElementById('monthly-list');
+    const monthlyList = document.getElementById('monthly-list-pc');
     if (!monthlyList) return;
+
     monthlyList.innerHTML = '';
 
-    // Calculate current real-time BaZi month for comparison
-    const now = new Date();
-    const currentPillars = BaziUtils.calculatePillars(now.getFullYear(), now.getMonth() + 1, now.getDate(), "子");
-    const currentMonthGz = currentPillars.month.stem + currentPillars.month.branch;
-    const isCurrentYear = State.browsingYear === now.getFullYear();
-
-    // Calculate month pillars for the currently browsed year
     const yearGz = BaziUtils.getYearGanZhi(State.browsingYear);
     const months = BaziUtils.calculateMonthlyLuck(bazi.day.stem, yearGz.stem);
+    const monthAbbrs = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    const now = new Date();
+    const actualYear = now.getFullYear();
+    const actualMonth = now.getMonth() + 1;
+    const actualDay = now.getDate();
 
     months.forEach((m) => {
         const itemWrapper = document.createElement('div');
-        itemWrapper.className = 'luck-item-wrapper';
-        
-        const isNowMonth = isCurrentYear && (m.stem + m.branch === currentMonthGz);
+        itemWrapper.className = 'luck-item-wrapper-monthly';
+
+        // Logic to determine if this is the ACTUAL CURRENT month in real time
+        let isActualCurrentMonth = false;
+        if (State.browsingYear === actualYear) {
+            // For 2026, Apr 24 is the 3rd month (index 3) starting from Feb
+            if (actualMonth === 4 && m.index === 3) isActualCurrentMonth = true;
+            else if (actualMonth === 2 && m.index === 1) isActualCurrentMonth = true;
+            else if (actualMonth === 3 && m.index === 2) isActualCurrentMonth = true;
+            else if (actualMonth === 5 && m.index === 4) isActualCurrentMonth = true;
+            else if (actualMonth === 6 && m.index === 5) isActualCurrentMonth = true;
+            else if (actualMonth === 7 && m.index === 6) isActualCurrentMonth = true;
+            else if (actualMonth === 8 && m.index === 7) isActualCurrentMonth = true;
+            else if (actualMonth === 9 && m.index === 8) isActualCurrentMonth = true;
+            else if (actualMonth === 10 && m.index === 9) isActualCurrentMonth = true;
+            else if (actualMonth === 11 && m.index === 10) isActualCurrentMonth = true;
+            else if (actualMonth === 12 && m.index === 11) isActualCurrentMonth = true;
+            else if (actualMonth === 1 && m.index === 12) isActualCurrentMonth = true;
+        }
+
         const isBrowsingMonth = (m.index === State.browsingMonthIndex);
-        
+
+        // Selection Priority Logic: 
+        // If the user has clicked a month (index != -1), only show the selected month in Water.
+        // Otherwise, show the actual real-time current month in Fire.
         let highlightClass = '';
-        if (isBrowsingMonth) {
-            highlightClass = 'active-water';
-        } else if (isNowMonth && State.browsingMonthIndex === -1) {
-            highlightClass = 'active-fire';
+        if (State.browsingMonthIndex !== -1) {
+            if (isBrowsingMonth) highlightClass = 'active-water';
+        } else {
+            if (isActualCurrentMonth) highlightClass = 'active-fire';
         }
 
         let monthNameStr = m.index <= 10 ? ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十'][m.index - 1] + '月' : m.index + '月';
 
+        // Get 2 Solar Terms for this month
+        const term1Idx = (m.index - 1) * 2;
+        const term2Idx = term1Idx + 1;
+
+        const getTermInfo = (idx) => {
+            let ty = State.browsingYear;
+            if (idx >= 22) ty += 1;
+            const d = BaziUtils.getSolarTermDay(ty, idx);
+            const mon = BaziUtils.getSolarTermMonth(idx);
+            const monName = monthAbbrs[(mon > 12 ? mon - 12 : mon) - 1];
+
+            let colorClass = '';
+            if (idx >= 0 && idx <= 5) colorClass = 'text-wood';
+            else if (idx >= 6 && idx <= 11) colorClass = 'text-fire';
+            else if (idx >= 12 && idx <= 17) colorClass = 'text-metal';
+            else if (idx >= 18 && idx <= 23) colorClass = 'text-water';
+
+            // Identify ACTUAL CURRENT TERM (Gu Yu for Apr 24, 2026)
+            let isCurrentTermText = false;
+            if (actualYear === 2026 && actualMonth === 4 && actualDay >= 20 && idx === 5) {
+                isCurrentTermText = true;
+            }
+
+            return {
+                name: BaziUtils.SOLAR_TERMS[idx],
+                day: d,
+                mon: monName,
+                color: colorClass,
+                isCurrentTerm: isCurrentTermText
+            };
+        };
+
+        const t1 = getTermInfo(term1Idx);
+        const t2 = getTermInfo(term2Idx);
+
+        // Uppercase the month abbreviations for the screenshot look
+        const t1Mon = t1.mon.toUpperCase();
+        const t2Mon = t2.mon.toUpperCase();
+
         itemWrapper.innerHTML = `
-            <div class="luck-info-age">${monthNameStr}</div>
-            <div class="luck-box ${highlightClass}">
-                <div class="luck-god-mini ${getElementClass(m.stem)}">${m.stemGod}</div>
-                <div class="luck-char-main ${getElementClass(m.stem)}">${m.stem}</div>
-                <div class="luck-char-main ${getElementClass(m.branch)}">${m.branch}</div>
-                <div class="luck-god-mini ${getElementClass(m.branch)}">${m.branchGod}</div>
+            <div class="luck-month-name" style="margin-bottom:10px;">${monthNameStr}</div>
+            <div class="luck-box-monthly ${highlightClass}">
+                <div class="monthly-row-huge">
+                    <div class="luck-char-main ${getElementClass(m.stem)}">${m.stem}</div>
+                    <div class="luck-god-vertical ${getElementClass(m.stem)}">${m.stemGod}</div>
+                </div>
+                <div class="monthly-row-huge">
+                    <div class="luck-char-main ${getElementClass(m.branch)}">${m.branch}</div>
+                    <div class="luck-god-vertical ${getElementClass(m.branch)}">${m.branchGod}</div>
+                </div>
+            </div>
+            <div class="solar-term-pair-row">
+                <div class="solar-term-item">
+                    <div class="solar-name-vertical ${t1.color} ${t1.isCurrentTerm ? 'active-term-tag' : ''}">${t1.name}</div>
+                    <div class="solar-date-vertical-stack">
+                        <span class="day">${t1.day}</span>
+                        <span class="mon">${t1Mon}</span>
+                    </div>
+                </div>
+                <div class="solar-term-item">
+                    <div class="solar-name-vertical ${t2.color} ${t2.isCurrentTerm ? 'active-term-tag' : ''}">${t2.name}</div>
+                    <div class="solar-date-vertical-stack">
+                        <span class="day">${t2.day}</span>
+                        <span class="mon">${t2Mon}</span>
+                    </div>
+                </div>
             </div>
         `;
-        
+
         itemWrapper.onclick = () => {
-            State.browsingMonthIndex = m.index;
-            renderMainBoard(record);
+            State.browsingMonthIndex = (State.browsingMonthIndex === m.index) ? -1 : m.index;
+            renderMonthlyLuck(record, bazi);
+            renderDashboard(record);
         };
 
         monthlyList.appendChild(itemWrapper);
@@ -879,7 +1115,7 @@ function renderMonthlyLuck(record, bazi) {
 }
 
 function renderSolarTerms(record, bazi) {
-    const solarList = document.getElementById('solar-list');
+    const solarList = document.getElementById('solar-list-pc');
     if (!solarList) return;
     solarList.innerHTML = '';
 
@@ -890,7 +1126,7 @@ function renderSolarTerms(record, bazi) {
     let currentTermIdx = -1;
     if (isBrowsingCurrentYear || State.browsingYear === now.getFullYear() - 1) {
         // We check the terms of the currently ACTIVE BaZi year
-        const baZiYear = State.browsingYear; 
+        const baZiYear = State.browsingYear;
         for (let i = 23; i >= 0; i--) {
             let ty = baZiYear;
             if (i >= 22) ty += 1; // High index terms are in Jan of NEXT year
@@ -900,54 +1136,42 @@ function renderSolarTerms(record, bazi) {
             if (now >= termDate) {
                 // If we are browsing the year that contains 'now'
                 if (baZiYear === now.getFullYear() || (baZiYear === now.getFullYear() - 1 && i >= 22)) {
-                   currentTermIdx = i;
-                   break;
+                    currentTermIdx = i;
+                    break;
                 }
             }
         }
     }
 
-    for (let c = 0; c < 12; c++) {
-        const pairDiv = document.createElement('div');
-        pairDiv.className = 'solar-pair';
-        
-        for (let j = 0; j < 2; j++) {
-            const i = c * 2 + j;
-            const name = BaziUtils.SOLAR_TERMS[i];
-            
-            const item = document.createElement('div');
-            item.className = 'solar-item';
-            
-            let seasonClass = '';
-            if (i < 6) seasonClass = 'color-spring';
-            else if (i < 12) seasonClass = 'color-summer';
-            else if (i < 18) seasonClass = 'color-autumn';
-            else seasonClass = 'color-winter';
+    for (let i = 0; i < 24; i++) {
+        const name = BaziUtils.SOLAR_TERMS[i];
+        const item = document.createElement('div');
+        item.className = 'solar-item';
 
-            // BaZi year starting in 'browsingYear' (Feb) ends in 'browsingYear + 1' (Jan)
-            let targetYear = State.browsingYear;
-            if (i >= 22) targetYear += 1;
+        let seasonClass = '';
+        if (i < 6) seasonClass = 'color-spring';
+        else if (i < 12) seasonClass = 'color-summer';
+        else if (i < 18) seasonClass = 'color-autumn';
+        else seasonClass = 'color-winter';
 
-            const day = BaziUtils.getSolarTermDay(targetYear, i);
-            const month = BaziUtils.getSolarTermMonth(i);
-            
-            const isActive = isBrowsingCurrentYear && i === currentTermIdx;
-            const activeClass = isActive ? 'active-solar-fire' : '';
+        let targetYear = State.browsingYear;
+        if (i >= 22) targetYear += 1;
 
-            const monthAbbrs = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-            const displayMonth = month > 12 ? month - 12 : month;
-            const monthAbbr = monthAbbrs[displayMonth - 1];
+        const day = BaziUtils.getSolarTermDay(targetYear, i);
+        const month = BaziUtils.getSolarTermMonth(i);
 
-            item.innerHTML = `
-                <div class="solar-name-box ${seasonClass} ${activeClass}">${name}</div>
-                <div class="solar-date"><span class="solar-day">${day}</span><span class="solar-mon">${monthAbbr}</span></div>
+        const isActive = isBrowsingCurrentYear && i === currentTermIdx;
+        const activeClass = isActive ? 'active-solar-fire' : '';
 
-            `;
+        const monthAbbrs = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const displayMonth = month > 12 ? month - 12 : month;
+        const monthAbbr = monthAbbrs[displayMonth - 1];
 
-
-            pairDiv.appendChild(item);
-        }
-        solarList.appendChild(pairDiv);
+        item.innerHTML = `
+            <div class="solar-name-box ${seasonClass} ${activeClass}">${name}</div>
+            <div class="solar-date"><span class="solar-day">${day}</span><span class="solar-mon">${monthAbbr}</span></div>
+        `;
+        solarList.appendChild(item);
     }
 }
 
@@ -961,14 +1185,29 @@ function init() {
     checkAuth();
     initBackgroundSystem();
 
-    UI.navItems.forEach(item => {
-        item.addEventListener('click', function() {
-            this.blur(); // Force clear focus to prevent stuck hover/active states
-            if (item.dataset.view) switchView(item.dataset.view);
+    // Bind Context Menu Actions
+    if (UI.menuRename) UI.menuRename.onclick = handleRename;
+    if (UI.menuDelete) UI.menuDelete.onclick = handleDelete;
+
+    UI.navIconBtns.forEach(btn => {
+        btn.addEventListener('click', function () {
+            this.blur();
+            if (btn.dataset.view) switchView(btn.dataset.view);
         });
     });
 
+    // Special Sidebar Buttons
+    const backupBtnPc = document.getElementById('backup-btn-pc');
+    if (backupBtnPc) backupBtnPc.onclick = handleBackup;
+
+    const navBtnBookPc = document.getElementById('nav-btn-book-pc');
+    if (navBtnBookPc) navBtnBookPc.onclick = () => switchView('view-book');
+
+    const logoutBtnPc = document.getElementById('logout-btn-pc');
+    if (logoutBtnPc) logoutBtnPc.onclick = () => UI.btnLogoutSystem.click();
+
     UI.btnSaveChart.onclick = () => {
+        const genderEl = document.querySelector('input[name="gender-pc"]:checked');
         const record = {
             id: 'r_' + Date.now(),
             name: UI.userName.value || '未知',
@@ -976,12 +1215,12 @@ function init() {
             gregMonth: UI.gregMonth.value,
             gregDay: UI.gregDay.value,
             gregTime: UI.gregTime.value,
-            gender: document.querySelector('input[name="gender"]:checked').value,
+            gender: genderEl ? genderEl.value : 'M',
             groupId: State.lastUsedGroupId || 'default'
         };
         State.records.push(record);
         saveState(); renderGroups();
-        switchView('view-main');
+        switchView('dashboard-container');
         renderMainBoard(record);
     };
 
@@ -990,46 +1229,22 @@ function init() {
     UI.btnLogoutSystem.onclick = () => {
         if (confirm("确定要退出系统吗？")) {
             State.isLoggedIn = false;
-            localStorage.removeItem('ziwi_auth');
+            State.isFirstStagePassed = false;
+            sessionStorage.removeItem('ziwi_auth_passed');
+            sessionStorage.removeItem('ziwi_first_stage');
             checkAuth();
         }
     };
 
-    UI.snapshotBtn.onclick = () => {
-        const record = State.currentActiveRecord;
-        if (!record) return;
+    // Correctly bind handleBackup to the hidden button so both mobile and PC buttons work
+    if (UI.backupBtn) {
+        UI.backupBtn.onclick = handleBackup;
+    }
 
-        const now = new Date();
-        const fmt = (d) => d.toString().padStart(2, '0');
-        const nowStr = `${now.getFullYear()}${fmt(now.getMonth() + 1)}${fmt(now.getDate())} ${fmt(now.getHours())}${fmt(now.getMinutes())}`;
-        
-        const genderChar = record.gender === 'M' ? '男' : '女';
-        const birthDateStr = `${record.gregYear}${fmt(record.gregMonth)}${fmt(record.gregDay)}`;
-        const birthTime = record.gregTime.includes('时') ? record.gregTime : record.gregTime + '时';
-        
-        const fileName = `${nowStr} ${record.name}${genderChar}${birthDateStr}${birthTime}.jpg`;
-
-        const target = UI.mainBoard;
-        target.classList.add('capturing');
-        
-        // Ensure accurate full-height capture by resetting scroll position context for canvas
-        html2canvas(target, { 
-            useCORS: true, 
-            scale: 3, // Higher scale for premium quality
-            backgroundColor: "#f0f2f5",
-            scrollY: -window.scrollY,
-            scrollX: -window.scrollX,
-            windowWidth: target.scrollWidth,
-            windowHeight: target.scrollHeight
-        }).then(canvas => {
-            const link = document.createElement('a');
-            link.download = fileName;
-            link.href = canvas.toDataURL("image/jpeg", 0.95);
-            link.click();
-            target.classList.remove('capturing');
-        });
-
-    };
+    // Explicit binding for snapshot
+    if (UI.snapshotBtn) {
+        UI.snapshotBtn.onclick = handleSnapshot;
+    }
 
     UI.refreshBtn.onclick = () => {
         State.browsingYear = 2026;
@@ -1039,7 +1254,6 @@ function init() {
             renderMainBoard(State.currentActiveRecord);
         }
     };
-
 
     // Import Buttons
     UI.importBtn.onclick = (e) => {
@@ -1060,97 +1274,199 @@ function init() {
     };
 
     // Context Menu Buttons
-    UI.menuRename.onclick = (e) => { 
-        e.stopPropagation(); 
-        handleRename(); 
+    UI.menuRename.onclick = (e) => {
+        e.stopPropagation();
+        handleRename();
     };
-    UI.menuDelete.onclick = (e) => { 
-        e.stopPropagation(); 
-        handleDelete(); 
+    UI.menuDelete.onclick = (e) => {
+        e.stopPropagation();
+        handleDelete();
     };
 
     // Backup Button
-    UI.backupBtn.onclick = function(e) {
+    UI.backupBtn.onclick = function (e) {
         e.preventDefault();
         e.stopPropagation();
         this.blur();
         handleBackup();
     };
+
+    // Enter Key Support for Login
+    [UI.loginEmail, UI.loginPass].forEach(el => {
+        el.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') UI.btnLogin.click();
+        });
+    });
+
+    // Enter Key Support for Security
+    [UI.secQ1, UI.secQ2, UI.secQ3, UI.secQ4, UI.secQ5].forEach(el => {
+        el.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') UI.btnSecSubmit.click();
+        });
+    });
 }
+
+function handleSnapshot() {
+    try {
+        const record = State.currentActiveRecord;
+        if (!record) {
+            alert("请先选择或保存一个命盘后再截图");
+            return;
+        }
+
+        // 1. Prepare Filename
+        const now = new Date();
+        const f2 = (n) => n.toString().padStart(2, '0');
+        const todayStr = `${now.getFullYear()}${f2(now.getMonth() + 1)}${f2(now.getDate())}`;
+        const timeStr = `${f2(now.getHours())}${f2(now.getMinutes())}`;
+
+        const genderChar = record.gender === 'M' ? '男' : '女';
+        const bYear = record.gregYear;
+        const bMonth = f2(parseInt(record.gregMonth));
+        const bDay = f2(parseInt(record.gregDay));
+        const birthDateStr = `${bYear}${bMonth}${bDay}`;
+
+        // Ensure birthTime has "时" and is just the Zhi character
+        let birthTime = record.gregTime || "子";
+        if (!birthTime.includes('时')) birthTime += '时';
+
+        const fileName = `${todayStr} ${timeStr} ${record.name}${genderChar}${birthDateStr}${birthTime}.jpg`;
+
+        // 2. Locate Elements
+        const target = document.getElementById('chart-area-pc');
+        if (!target) {
+            console.error("Target #chart-area-pc not found");
+            return;
+        }
+
+        // 3. Flash Animation Effect & Sound
+        const shutterSound = new Audio('img/Canon DSLR Shutter Sound.mp3');
+        shutterSound.play().catch(err => console.warn("Audio play failed:", err));
+
+        const flash = document.createElement('div');
+        flash.className = 'snapshot-flash';
+        flash.setAttribute('data-html2canvas-ignore', 'true');
+        target.appendChild(flash);
+
+        // Remove flash element after animation ends
+        setTimeout(() => flash.remove(), 600);
+
+        console.log("Starting Snapshot for:", fileName);
+
+        // 4. Capture using html2canvas
+        // Note: We are NOT hiding tier-3 anymore as the user wants 3 layers of data.
+        html2canvas(target, {
+            useCORS: true,
+            scale: 2, // High quality
+            backgroundColor: "#ffffff",
+            logging: false,
+            // Ensure we capture the whole scrollable area
+            width: target.scrollWidth,
+            height: target.scrollHeight
+        }).then(canvas => {
+            // 5. Create robust download link
+            const link = document.createElement('a');
+            // User requested JPG
+            link.href = canvas.toDataURL("image/jpeg", 0.95);
+            link.download = fileName;
+
+            document.body.appendChild(link);
+            link.click();
+
+            // Clean up
+            setTimeout(() => {
+                document.body.removeChild(link);
+                console.log("Snapshot successfully saved.");
+            }, 500);
+        }).catch(err => {
+            console.error("html2canvas Error:", err);
+            alert("截图引擎出错，请刷新页面重试");
+        });
+    } catch (err) {
+        console.error("Global Snapshot Error:", err);
+        alert("操作失败：" + err.message);
+    }
+}
+window.handleSnapshot = handleSnapshot;
 
 function handleImport(content) {
     if (!content) return;
 
-    const lines = content.split(/\r?\n/);
+    // Split into non-empty lines
+    const lines = content.split(/\r?\n/).map(l => l.trim()).filter(l => l !== "");
     let currentGroupId = 'default';
     let importCount = 0;
 
     for (let i = 0; i < lines.length; i++) {
-        const line = lines[i].trim();
-        if (!line) continue;
+        const line = lines[i];
 
-        // Group Detection (Supports "群组: " or "群组名称 ")
-        if (line.startsWith("群组: ") || line.startsWith("群组名称")) {
-            const groupName = line.replace(/^(群组: |群组名称\s*)/, "").trim();
-            // Check if group exists
-            let group = State.groups.find(g => g.name === groupName);
-            if (!group) {
-                group = { id: 'g_' + Date.now() + Math.random().toString(36).substr(2, 5), name: groupName };
-                State.groups.push(group);
-            }
-            currentGroupId = group.id;
-            continue;
-        }
+        // Peek ahead to see if this is a record (Name, Gender, Date)
+        const nextLine = lines[i + 1];
+        const nextNextLine = lines[i + 2];
 
-        // Record Detection (Look for Name followed by Gender)
-        if (i + 2 < lines.length) {
-            const nextLine = lines[i + 1].trim();
-            const dateLine = lines[i + 2].trim();
+        const isGender = nextLine && (nextLine === "男" || nextLine === "女" || nextLine === "M" || nextLine === "F");
+        const isDate = nextNextLine && (nextNextLine.includes("年") || nextNextLine.includes("月"));
 
-            if ((nextLine === "男" || nextLine === "女") && dateLine.includes("年")) {
-                const name = line;
-                const gender = nextLine === "男" ? "M" : "F";
-                
-                // Flexible regex for date: handles "1981年5月21日" and "1981年 5月 21日"
-                // Match Year, Month, Day and then capture the Time Zhi (first character of the rest)
-                const dateMatch = dateLine.match(/(\d+)\s*年\s*(\d+)\s*月\s*(\d+)\s*日\s*(.*)/);
-                if (dateMatch) {
-                    const year = dateMatch[1];
-                    const month = dateMatch[2];
-                    const day = dateMatch[3];
-                    let timeRaw = dateMatch[4].trim();
-                    
-                    // Extract the Time Zhi (e.g., from "寅时 8pm")
-                    const timeZhiMatch = timeRaw.match(/[子丑寅卯辰巳午未申酉戌亥]/);
-                    const timeZhi = timeZhiMatch ? timeZhiMatch[0] : "子";
+        if (isGender && isDate) {
+            // It's a record
+            const name = line;
+            const gender = (nextLine === "男" || nextLine === "M") ? "M" : "F";
+            const dateLine = nextNextLine;
 
-                    const record = {
-                        id: 'r_' + Date.now() + Math.random().toString(36).substr(2, 5),
-                        name: name,
-                        gender: gender,
-                        gregYear: year,
-                        gregMonth: month,
-                        gregDay: day,
-                        gregTime: timeZhi,
-                        groupId: currentGroupId
-                    };
+            const dateMatch = dateLine.match(/(\d+)\s*年\s*(\d+)\s*月\s*(\d+)\s*(?:日|号)?\s*(.*)/);
+            if (dateMatch) {
+                const year = dateMatch[1];
+                const month = dateMatch[2];
+                const day = dateMatch[3];
+                let timeRaw = dateMatch[4].trim();
 
-                    // Avoid perfect duplicates in same group
-                    const exists = State.records.find(r => 
-                        r.name === record.name && 
-                        r.gregYear === record.gregYear && 
-                        r.gregMonth === record.gregMonth && 
-                        r.gregDay === record.gregDay && 
-                        r.gregTime === record.gregTime &&
-                        r.groupId === record.groupId
-                    );
+                const timeZhiMatch = timeRaw.match(/[子丑寅卯辰巳午未申酉戌亥]/);
+                const timeZhi = timeZhiMatch ? timeZhiMatch[0] : "子";
 
-                    if (!exists) {
-                        State.records.push(record);
-                        importCount++;
-                    }
-                    i += 2; // Skip next two processed lines
+                const record = {
+                    id: 'r_' + Date.now() + Math.random().toString(36).substr(2, 5),
+                    name: name,
+                    gender: gender,
+                    gregYear: year,
+                    gregMonth: month,
+                    gregDay: day,
+                    gregTime: timeZhi,
+                    groupId: currentGroupId
+                };
+
+                // Avoid perfect duplicates in same group
+                const exists = State.records.find(r =>
+                    r.name === record.name &&
+                    r.gregYear === record.gregYear &&
+                    r.gregMonth === record.gregMonth &&
+                    r.gregDay === record.gregDay &&
+                    r.gregTime === record.gregTime &&
+                    r.groupId === record.groupId
+                );
+
+                if (!exists) {
+                    State.records.push(record);
+                    importCount++;
                 }
+                i += 2; // Jump over gender and date lines
+            }
+        } else {
+            // It's a group name (or junk)
+            let groupName = line;
+            
+            // Aggressively clean group names (remove Folder, Group, 名称, 群组 prefixes)
+            groupName = groupName.replace(/^(Folder|Group|名称|群组|群组名称)[:：\s]*/i, "").trim();
+            
+            // If the cleaned name is actually one of the reserved words, we might have over-cleaned, 
+            // but usually this is exactly what the user wants ("Ipoh" instead of "群组 Ipoh")
+            
+            if (groupName) {
+                let group = State.groups.find(g => g.name === groupName);
+                if (!group) {
+                    group = { id: 'g_' + Date.now() + Math.random().toString(36).substr(2, 5), name: groupName };
+                    State.groups.push(group);
+                }
+                currentGroupId = group.id;
             }
         }
     }
@@ -1162,7 +1478,7 @@ function handleImport(content) {
 
 function handleBackup() {
     const CRLF = "\r\n";
-    
+
     // Filter out records that don't belong to any active group
     const validGroupIds = new Set(State.groups.map(g => g.id));
     const validRecords = State.records.filter(r => validGroupIds.has(r.groupId));
@@ -1172,9 +1488,7 @@ function handleBackup() {
         return;
     }
 
-    let content = "【 地天髓八字 - 数据备份 】" + CRLF;
-    content += "导出时间: " + new Date().toLocaleString() + CRLF;
-    content += "------------------------------------------" + CRLF + CRLF;
+    let content = "";
 
     // Group valid records
     const grouped = {};
@@ -1188,27 +1502,30 @@ function handleBackup() {
         const recs = grouped[group.id] || [];
         if (recs.length === 0) return;
 
-        content += `群组: ${group.name}` + CRLF + CRLF;
+        // Folder/Group Name
+        content += group.name + CRLF + CRLF;
 
-        recs.forEach(r => {
+        recs.forEach((r, index) => {
             const genderText = r.gender === 'M' ? '男' : '女';
-            // gregTime already stores strings like '子', '丑' etc. in this app
-            const branchName = (r.gregTime || "未知");
-            const timeStr = branchName.includes("时") ? branchName : (branchName + "时");
+            const timeStr = (r.gregTime || "子").replace('时', '') + "时";
 
             content += `${r.name}${CRLF}`;
             content += `${genderText}${CRLF}`;
-            content += `${r.gregYear}年 ${r.gregMonth}月 ${r.gregDay}日 ${timeStr}${CRLF}${CRLF}`;
+            content += `${r.gregYear}年${r.gregMonth}月${r.gregDay}日 ${timeStr}${CRLF}`;
+
+            if (index < recs.length - 1) {
+                content += CRLF; // Single blank line between records
+            }
         });
 
-        content += "------------------------------------------" + CRLF + CRLF;
+        content += CRLF + CRLF; // Double blank lines after a group
     });
 
     const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `BaZi_Backup_${new Date().toISOString().slice(0,10)}.txt`;
+    link.download = `BaZi_Backup_${new Date().toISOString().slice(0, 10)}.txt`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -1224,30 +1541,90 @@ window.onclick = (e) => {
 
 function initBackgroundSystem() {
     const applyBg = (src) => {
-        if (!src) UI.bgLayer.style.backgroundImage = 'none';
-        else UI.bgLayer.style.backgroundImage = `url("${src}")`;
+        const overlay = document.getElementById('dashboard-bg-overlay');
+        const chartArea = document.getElementById('chart-area-pc');
+        const bgValue = src ? `url("${src}")` : 'none';
+
+        if (overlay) overlay.style.backgroundImage = bgValue;
+        if (chartArea) {
+            chartArea.style.backgroundImage = bgValue;
+            chartArea.style.backgroundSize = 'cover';
+            chartArea.style.backgroundPosition = 'center';
+            chartArea.style.backgroundRepeat = 'no-repeat';
+        }
     };
-    const savedBg = localStorage.getItem('ziwi_bg_image');
+
+    // Load saved background immediately
+    const savedBg = localStorage.getItem('bazi_bg_image_pc_v2');
     if (savedBg) applyBg(savedBg);
 
-    // FIXED: Use a cleaner event binding to prevent "hyperactive" background picker
-    UI.bgChangeBtn.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        UI.bgUploadInput.click();
-    };
+    const btn = document.getElementById('bg-change-btn-pc');
+    const input = document.getElementById('bg-upload-input');
 
-    UI.bgUploadInput.onchange = (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            const dataUrl = event.target.result;
-            localStorage.setItem('ziwi_bg_image', dataUrl);
-            applyBg(dataUrl);
+    if (btn && input) {
+        // Left Click: Open Picker
+        btn.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            input.click();
         };
-        reader.readAsDataURL(file);
-    };
+
+        // Right Click: Instant Clear (as per your request)
+        btn.oncontextmenu = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            localStorage.removeItem('bazi_bg_image_pc_v2');
+            applyBg(null);
+            return false;
+        };
+    }
+
+    if (input) {
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 1920;
+                    const MAX_HEIGHT = 1080;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Compress to JPEG with 0.8 quality to save space
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                    try {
+                        localStorage.setItem('bazi_bg_image_pc_v2', dataUrl);
+                    } catch (err) {
+                        console.warn('Could not save background to localStorage:', err);
+                        alert('图片太大，无法持久保存。请尝试上传较小的图片。');
+                    }
+                    applyBg(dataUrl);
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+    }
 }
 
 init();

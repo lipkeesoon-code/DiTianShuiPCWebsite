@@ -219,7 +219,7 @@ const BaziUtils = (function() {
 
         const dayStem = calculatePillars(birthYear, birthMonth, birthDay, "子").day.stem;
 
-        while (currentLoopAge < 100) {
+        while (luckCycles.length < 10) {
             if (isForward) {
                 curStemIdx = (curStemIdx + 1) % 10;
                 curBranchIdx = (curBranchIdx + 1) % 12;
@@ -244,7 +244,6 @@ const BaziUtils = (function() {
             });
             currentLoopAge += 10;
             currentLoopYear += 10;
-            if (luckCycles.length >= 12) break;
         }
         return { cycles: luckCycles, startAge: startAge };
     }

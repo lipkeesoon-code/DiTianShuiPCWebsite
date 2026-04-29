@@ -144,7 +144,7 @@ body, html {
 }
 
 /* Login View */
-#view-login {
+#view-login, #view-security {
     background: linear-gradient(135deg, #758f2d 0%, #4a5d1c 100%);
     z-index: 100; /* Always on top until hidden */
 }
@@ -165,6 +165,7 @@ body, html {
     border-radius: 24px;
     padding: 30px;
     width: 100%;
+    max-width: 450px; /* Prevent stretching on PC */
     box-shadow: 0 10px 40px rgba(74, 93, 28, 0.2);
 }
 
@@ -222,7 +223,7 @@ body, html {
     background: #677dab;
 }
 
-#btn-login {
+#btn-login, #btn-sec-submit {
     background: #758f2d;
     box-shadow: 0 4px 15px rgba(74, 93, 28, 0.4);
 }
@@ -236,6 +237,10 @@ body, html {
     font-size: 0.85rem;
     margin-top: 15px;
     text-align: center;
+}
+
+.masked-input {
+    -webkit-text-security: disc !important;
 }
 
 /* Bottom Nav */
@@ -560,15 +565,15 @@ body, html {
     gap: 12px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.03);
     cursor: pointer;
-    font-size: 15px;
+    font-size: 17px;
     font-weight: 700;
     transition: all 0.2s;
     user-select: none;
 }
 
 .group-radio-dot {
-    width: 18px;
-    height: 18px;
+    width: 11px;
+    height: 11px;
     border-radius: 50%;
     border: 2px solid #ddd;
     background: #fff;
@@ -583,7 +588,7 @@ body, html {
 }
 
 .record-item {
-    margin: 8px 10px 8px 45px;
+    margin: 8px 10px 8px 25px;
     background: #fff;
     padding: 12px 18px;
     border-radius: 12px;
@@ -812,7 +817,7 @@ body, html {
 }
 
 .luck-box.active-water {
-    border: 2px solid #1688B5 !important;
+    border: 2px solid #1689b6 !important;
     background: #F0F8FF !important;
 }
 
@@ -851,7 +856,7 @@ body, html {
 .dm-badge.fire { background-color: #EF6595 !important; }
 .dm-badge.earth { background-color: #A67B51 !important; }
 .dm-badge.metal { background-color: #F9B041 !important; }
-.dm-badge.water { background-color: #1688B5 !important; }
+.dm-badge.water { background-color: #1689b6 !important; }
 
 .p-stem {
     font-size: 1.8rem; /* Compact height */
@@ -881,7 +886,7 @@ body, html {
 .fire  { color: #EF6595 !important; } /* H339 S58 B94 */
 .earth { color: #A67B51 !important; } /* H30 S51 B65 */
 .metal { color: #F9B041 !important; } /* H36 S74 B98 */
-.water { color: #1688B5 !important; } /* H197 S88 B71 */
+.water { color: #1689b6 !important; } /* H197 S88 B71 */
 
 /* Luck Cycles */
 .luck-card {
@@ -984,7 +989,7 @@ body, html {
 .color-spring { color: #6E943D !important; }
 .color-summer { color: #EF6595 !important; }
 .color-autumn { color: #F9B041 !important; }
-.color-winter { color: #1688B5 !important; }
+.color-winter { color: #1689b6 !important; }
 
 .solar-date {
     display: flex;
@@ -1325,11 +1330,11 @@ body, html {
 }
 
 .gender-m {
-    color: #00AEEF; /* C100 M0 Y0 K0 Blue */
+    color: #00adef; 
 }
 
 .gender-f {
-    color: #EC008C; /* C0 M100 Y0 K0 Pink */
+    color: #ec008c; 
 }
 
 .bg-sanfang {
@@ -1337,11 +1342,11 @@ body, html {
 }
 
 .gender-male { 
-    color: #00AEEF; /* C100 M0 Y0 K0 */
+    color: #00adef; 
 }
 
 .gender-female { 
-    color: #EC008C; /* C0 M100 Y0 K0 */
+    color: #ec008c; 
 }
 
 /* Info Grid below chart (2 Columns x 4 Rows) */
@@ -1506,19 +1511,19 @@ html, body, *, button, select, input {
 
 .chart-inner-ring {
     fill: none;
-    stroke-width: 12; /* Scaled down */
+    stroke-width: 24px; /* Slightly thicker for premium feel */
     stroke-linecap: butt;
 }
 
 .chart-inner-border {
     fill: none;
-    stroke: #e0e0e0;
-    stroke-width: 0.6; /* Thin border */
+    stroke: rgba(255,255,255,0.7); /* Subtle white border for cleaner look */
+    stroke-width: 0.8; 
 }
 
 .chart-center-text {
-    font-size: 20px; /* Scaled down */
-    font-weight: 800;
+    font-size: 34px; /* Increased for prominence */
+    font-weight: 900;
     text-anchor: middle;
     dominant-baseline: central;
     letter-spacing: -1px;
@@ -1544,51 +1549,54 @@ html, body, *, button, select, input {
 .element-label .text-group {
     display: flex;
     flex-direction: column;
-    gap: 1px;
+    gap: 2px; /* Tighter vertical gap between rows */
     flex-shrink: 0;
 }
 
 .element-label .god-row {
     display: flex;
     align-items: center;
-    gap: 4px;
-    height: 14px;
+    gap: 5px;
+    height: 24px; /* Increased to accommodate 22px font */
 }
 
 .element-label .god-name {
-    font-size: 11px;
+    font-size: 22px;
     font-weight: 800;
     line-height: 1;
     white-space: nowrap;
 }
 
 .element-label .score-text {
-    font-size: 10px;
-    font-weight: 500;
+    font-size: 17px;
+    font-weight: 700;
     opacity: 0.9;
     line-height: 1;
+    margin-left: 2px;
 }
 
 .chart-color-box {
-    width: 9px;
-    height: 9px;
+    width: 16px;
+    height: 16px;
     border-radius: 2px;
     flex-shrink: 0;
     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    border: 1px solid rgba(255,255,255,0.4);
+    margin-left: 2px;
 }
 
-/* Enhanced Element Colors */
-.el-wood { color: #6d8e46; } .fill-wood { fill: #6d8e46; } .bg-wood { background: #6d8e46; }
-.el-fire { color: #f06292; } .fill-fire { fill: #f06292; } .bg-fire { background: #f06292; }
-.el-earth { color: #a17c5a; } .fill-earth { fill: #a17c5a; } .bg-earth { background: #a17c5a; }
-.el-metal { color: #ffb74d; } .fill-metal { fill: #ffb74d; } .bg-metal { background: #ffb74d; }
-.el-water { color: #2196f3; } .fill-water { fill: #2196f3; } .bg-water { background: #2196f3; }
+/* Enhanced Element Colors - Forced Fill */
+.el-wood { color: #6d8e46 !important; } .fill-wood { fill: #6d8e46 !important; } .bg-wood { background-color: #6d8e46 !important; }
+.el-fire { color: #f06292 !important; } .fill-fire { fill: #f06292 !important; } .bg-fire { background-color: #f06292 !important; }
+.el-earth { color: #a17c5a !important; } .fill-earth { fill: #a17c5a !important; } .bg-earth { background-color: #a17c5a !important; }
+.el-metal { color: #ffb74d !important; } .fill-metal { fill: #ffb74d !important; } .bg-metal { background-color: #ffb74d !important; }
+.el-water { color: #1689b6 !important; } .fill-water { fill: #1689b6 !important; } .bg-water { background-color: #1689b6 !important; }
 
-.stroke-wood { stroke: #6d8e46; }
-.stroke-fire { stroke: #f06292; }
-.stroke-earth { stroke: #a17c5a; }
-.stroke-metal { stroke: #ffb74d; }
-.stroke-water { stroke: #2196f3; }
+.stroke-wood { stroke: #6d8e46 !important; }
+.stroke-fire { stroke: #f06292 !important; }
+.stroke-earth { stroke: #a17c5a !important; }
+.stroke-metal { stroke: #ffb74d !important; }
+.stroke-water { stroke: #1689b6 !important; }
 
 /* Lunar Display Redesign */
 .lunar-info {

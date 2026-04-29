@@ -10,8 +10,9 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&family=Outfit:wght@400;600&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/pc-v2.css?v=1.4">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1688B5">
+    <meta name="theme-color" content="#1689b6">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="滴天髓">
@@ -27,12 +28,266 @@
             overscroll-behavior: none;
             margin: 0;
             padding: 0;
+            background: url('img/imgi_392_pastel-flower-background-soft-floral-design-color-palettes-dreamy-delicat.jpg') no-repeat center center fixed !important;
+            background-size: cover !important;
+        }
+
+        #phone-container,
+        .app-view,
+        #dashboard-container {
+            background: transparent !important;
+        }
+
+        .pane {
+            background: transparent;
+        }
+
+        #sidebar-left {
+            background: #f1f5f9 !important;
+            /* Solid gray base to match design */
+            border-right: 1px solid #e2e8f0;
+        }
+
+        #view-login, #view-security {
+            background: rgba(255, 255, 255, 0.2) !important;
         }
 
         #phone-container {
             width: 100%;
             height: 100%;
             position: relative;
+        }
+
+        /* Forced UI Sync from PC-V2 */
+        .pane-header {
+            background: #cbd5e1 !important;
+            color: #475569 !important;
+            padding: 8px 15px !important;
+            /* Narrower vertical space */
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            font-weight: 700 !important;
+            border-bottom: 1px solid #94a3b8 !important;
+        }
+
+        .pane-header-dark {
+            background: #5d5c7c !important;
+            color: #fff !important;
+            padding: 6px 15px !important;
+            /* Reduced vertical padding */
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 10px !important;
+            font-weight: 700 !important;
+            font-size: 1.4rem !important;
+            /* Increased font size */
+            letter-spacing: 0.5px !important;
+        }
+
+        #sidebar-nav {
+            padding: 12px !important;
+            background: rgba(255, 255, 255, 0.4) !important;
+            backdrop-filter: blur(5px) !important;
+            border-top: 1px solid rgba(0, 0, 0, 0.05) !important;
+        }
+
+        .nav-grid {
+            display: grid !important;
+            grid-template-columns: repeat(4, 1fr) !important;
+            gap: 10px !important;
+        }
+
+        .nav-icon-btn {
+            width: 100% !important;
+            aspect-ratio: 1 !important;
+            border: none !important;
+            background: transparent !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            cursor: pointer !important;
+            box-shadow: none !important;
+            transition: all 0.1s !important;
+            padding: 0 !important;
+        }
+
+        .nav-icon-btn:hover {
+            transform: scale(1.1) !important;
+        }
+
+        .nav-icon-btn img {
+            width: 85% !important;
+            height: 85% !important;
+            object-fit: contain !important;
+        }
+
+        .record-item {
+            margin: 4px 10px 4px 10px !important;
+            /* Narrower vertical spacing */
+            background: #ffffff !important;
+            border-radius: 10px !important;
+            padding: 8px 15px !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04) !important;
+            border-left: 5px solid #6366f1 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            /* Force left alignment of content */
+        }
+
+        .group-header {
+            margin: 4px 10px 2px 10px !important;
+            /* Reduced margin-top to move it up */
+            padding: 10px 15px !important;
+            /* Tighter padding */
+            border-radius: 10px !important;
+            background: #fff !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03) !important;
+        }
+
+        .group-wrapper {
+            margin-bottom: 8px !important;
+            /* Tighter group spacing */
+        }
+
+        .record-item.active {
+            background: #eef2ff !important;
+            border-left-color: #4338ca !important;
+        }
+
+        .record-item .name-row {
+            font-size: 19px !important;
+            font-weight: 700 !important;
+            color: #1e293b !important;
+            text-align: left !important;
+        }
+
+        .record-item .gender-m {
+            color: #00AEEF !important;
+        }
+
+        .record-item .gender-f {
+            color: #EC008C !important;
+        }
+
+        .record-info {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: -2px !important;
+            /* This is where the actual gap is */
+        }
+
+        .record-item .date-row {
+            font-size: 15px !important;
+            color: #64748b !important;
+            font-weight: 500 !important;
+            text-align: left !important;
+            margin-top: 0 !important;
+            /* Remove any margin that was blocking the gap */
+        }
+
+        .group-radio-dot.active {
+            background: #663bff !important;
+            /* C60 M77 Y0 K0 Vivid Purple */
+            border-color: #663bff !important;
+        }
+
+        /* Sidebar Action Buttons (Import / +New Group) */
+        .sidebar-action-row {
+            display: flex !important;
+            gap: 10px !important;
+            padding: 4px 10px !important;
+            /* Tighter vertical space */
+            background: #f8fafc !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+        }
+
+        .sidebar-action-btn {
+            flex: 1 !important;
+            height: 32px !important;
+            /* Narrower button */
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 6px !important;
+            background: #ffffff !important;
+            border: 1.5px solid #1689b6 !important;
+            /* Water Color */
+            border-radius: 6px !important;
+            color: #1689b6 !important;
+            font-size: 14px !important;
+            font-weight: 700 !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+            box-shadow: 0 1px 3px rgba(22, 136, 181, 0.05) !important;
+        }
+
+        .sidebar-action-btn:hover {
+            background: #e0f2fe !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 4px 8px rgba(22, 136, 181, 0.1) !important;
+        }
+
+        .sidebar-action-btn:active {
+            transform: translateY(0) !important;
+            background: #bae6fd !important;
+        }
+
+        .sidebar-action-btn img {
+            filter: brightness(0) saturate(100%) invert(43%) sepia(85%) rotate(168deg) brightness(88%) contrast(92%);
+            /* Color match to #1689b6 */
+        }
+
+        #sidebar-left .pane-content {
+            padding-top: 5px !important;
+            /* Move the whole list up */
+        }
+
+        .header-icon-btn {
+            background: transparent !important;
+            border: none !important;
+            cursor: pointer !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 4px !important;
+            transition: transform 0.2s ease !important;
+            opacity: 0.8 !important;
+        }
+
+        .header-icon-btn:hover {
+            transform: scale(1.1) !important;
+            opacity: 1 !important;
+        }
+
+        .header-icon-btn:active {
+            transform: scale(0.9) !important;
+        }
+
+        /* PC V2 FORCE OVERRIDES */
+        .dash-card {
+            justify-content: flex-start !important;
+        }
+
+        .dash-card-title {
+            border-bottom: none !important;
+            margin-bottom: 5px !important;
+        }
+
+        .monthly-grid-pc {
+            margin-top: 0 !important;
+        }
+
+
+
+        #chart-area-pc {
+            position: relative;
+            /* For flash positioning */
         }
     </style>
 </head>
@@ -46,7 +301,7 @@
                 <div class="login-box">
                     <div class="login-header">
                         <h1>滴天髓八字</h1>
-                        <p>管理员门槛认证</p>
+                        <p>管理员门槛认证 (第一阶段)</p>
                     </div>
                     <div class="login-form">
                         <div class="login-field">
@@ -57,197 +312,251 @@
                             <label>Password</label>
                             <input type="password" id="login-pass" placeholder="输入安全密码">
                         </div>
-                        <button id="btn-login" class="primary-gradient-btn">进入软件系统</button>
+                        <button id="btn-login" class="primary-gradient-btn">下一步：安全验证</button>
                         <p id="login-error" class="error-msg"></p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- View 2: Input Panel (新建出生资料) -->
-        <section id="view-input" class="app-view">
-            <header class="view-header">
-                <h2>新建出生资料</h2>
-                <button id="btn-logout-system" class="header-icon-btn">
-                    <img src="img/LogOut Icon .png" alt="Logout">
-                </button>
-            </header>
-            <div class="view-content scroll-y">
-                <div id="input-panel-mobile" class="mobile-panel">
-                    <div class="panel-card">
-                        <label class="card-label">西历 (公历)</label>
-                        <div class="date-row">
-                            <select id="greg-year"></select>
-                            <select id="greg-month"></select>
-                            <select id="greg-day"></select>
-                        </div>
-                        <div class="time-row mt-10">
-                            <select id="greg-time"></select>
-                        </div>
+        <!-- View 1.5: Security Questions -->
+        <section id="view-security" class="app-view">
+            <div class="login-wrapper">
+                <div class="login-box">
+                    <div class="login-header">
+                        <h1>安全验证 (第二阶段)</h1>
+                        <p>请准确回答以下 5 个安全问题</p>
                     </div>
-
-                    <div class="panel-card mt-15">
-                        <label class="card-label">农历</label>
-                        <div class="lunar-info" id="lunar-date-display">
-                            <!-- Computed -->
+                    <div class="login-form">
+                        <div class="login-field">
+                            <label>1) Sky 在 Pelangi 练习比赛唱的一首歌叫？</label>
+                            <input type="text" id="sec-q1" class="masked-input" placeholder="输入答案">
                         </div>
+                        <div class="login-field">
+                            <label>2) 3叔以前住的花园中文叫？</label>
+                            <input type="text" id="sec-q2" class="masked-input" placeholder="输入答案">
+                        </div>
+                        <div class="login-field">
+                            <label>3) 我的命宫有什么星系？</label>
+                            <input type="text" id="sec-q3" class="masked-input" placeholder="输入答案">
+                        </div>
+                        <div class="login-field">
+                            <label>4) 我预备班时，在那里医院开刀？</label>
+                            <input type="text" id="sec-q4" class="masked-input" placeholder="输入答案">
+                        </div>
+                        <div class="login-field">
+                            <label>5) 家乡的历史旧戏院叫？</label>
+                            <input type="text" id="sec-q5" class="masked-input" placeholder="输入答案">
+                        </div>
+                        <button id="btn-sec-submit" class="primary-gradient-btn">验证并进入软件系统</button>
+                        <p id="sec-error" class="error-msg"></p>
                     </div>
+                </div>
+            </div>
+        </section>
 
-                    <div class="panel-card mt-15">
-                        <label class="card-label">基本信息</label>
-                        <div class="input-group">
-                            <span>姓名:</span>
-                            <input type="text" id="user-name" value="未知">
+        <!-- Main Dashboard View (3-Column Layout for PC) -->
+        <div id="dashboard-container">
+            <!-- New: Custom Background Overlay for Col 2 & 3 -->
+            <div id="dashboard-bg-overlay" class="dashboard-bg-overlay"></div>
+
+            <!-- Column 1: Records/Sidebar (Fixed 320px) -->
+            <aside id="sidebar-left" class="pane">
+                <header class="pane-header">
+                    <div class="header-left">
+                        <h2>八字命盘资料</h2>
+                    </div>
+                    <div class="header-right">
+                        <button id="logout-btn-pc" class="header-icon-btn" title="退出系统">
+                            <img src="img/LogOut Icon .png" width="22" height="22">
+                        </button>
+                    </div>
+                </header>
+
+                <div class="sidebar-action-row">
+                    <button id="import-btn-pc" class="sidebar-action-btn">
+                        Import 命盘数据
+                    </button>
+                    <button id="add-group-btn-pc" class="sidebar-action-btn">
+                        <span>+ 新群组</span>
+                    </button>
+                </div>
+
+                <div class="pane-content scroll-y">
+                    <div id="group-list-pc" class="group-list-pc">
+                        <!-- Dynamic List -->
+                    </div>
+                </div>
+
+                <!-- Bottom Sidebar Toolbar -->
+                <nav id="sidebar-nav">
+                    <div class="nav-grid">
+                        <button class="nav-icon-btn" id="bg-change-btn-pc" title="左键换背景 / 右键清零"
+                            oncontextmenu="return false;">
+                            <img src="img/bg.png" alt="背景">
+                        </button>
+                        <button class="nav-icon-btn" id="backup-btn-pc" title="备份">
+                            <img src="img/backup.png" alt="备份">
+                        </button>
+                        <button class="nav-icon-btn" id="snapshot-btn-pc" title="截图" onclick="handleSnapshot()">
+                            <img src="img/snapshot.png" alt="截图">
+                        </button>
+                        <button class="nav-icon-btn" id="refresh-btn-pc" title="刷新">
+                            <img src="img/refresh.png" alt="刷新">
+                        </button>
+                    </div>
+                </nav>
+            </aside>
+
+            <!-- Dashboard Main Container -->
+            <section id="view-dashboard">
+                <div class="main-dashboard-grid-v2">
+
+                    <div class="dash-card input-section-card">
+                        <div class="pane-header-dark">
+                            新建出生资料
                         </div>
-                        <div class="input-group mt-10">
-                            <span>性别:</span>
-                            <div class="radio-pill">
-                                <label><input type="radio" name="gender" value="M" checked> <span
-                                        class="gender-label-m">男</span></label>
-                                <label><input type="radio" name="gender" value="F"> <span
-                                        class="gender-label-f">女</span></label>
-
+                        <div class="pane-content-new">
+                            <!-- Section 1: Western Date -->
+                            <div class="input-group-box">
+                                <div class="group-label">西历</div>
+                                <div class="input-row-flex">
+                                    <select id="greg-year-pc"></select>
+                                    <select id="greg-month-pc"></select>
+                                    <select id="greg-day-pc"></select>
+                                </div>
+                                <div class="input-row-flex mt-5">
+                                    <select id="greg-time-pc"></select>
+                                </div>
                             </div>
-                        </div>
-                    </div>
 
-                    <div class="button-stack mt-20">
-                        <button id="btn-save-chart" class="primary-gradient-btn">存档 + 排盘</button>
-                        <button id="btn-new-chart" class="secondary-btn">设置新命盘</button>
-                    </div>
-                </div>
-            </div>
-        </section>
+                            <!-- Section 2: Lunar Date -->
+                            <div class="input-group-box">
+                                <div class="group-label">农历</div>
+                                <div id="lunar-display-pc" class="lunar-display-box">丙午年 三月 初六 未时 星期三</div>
+                            </div>
 
-        <!-- View 3: Sidebar/Records (客户资料) -->
-        <section id="view-records" class="app-view">
-            <header class="view-header">
-                <div class="header-left">
-                    <h2>八字命盘资料</h2>
-                </div>
-                <div class="header-right" style="display:flex; gap:10px;">
-                    <button id="import-btn" class="icon-text-btn">Import 命盘数据</button>
-                    <button id="add-group-btn" class="icon-text-btn">+ 新群组</button>
-                    <input type="file" id="import-file-input" accept=".txt" style="display:none;">
-                </div>
-            </header>
-            <div class="view-content scroll-y">
-                <!-- Search Bar Removed as requested -->
-                <div id="group-list" class="group-list-mobile">
-                    <!-- Dynamic List -->
-                </div>
-            </div>
-        </section>
-
-        <!-- View 4: MainBoard (命盘大厅) -->
-        <section id="view-main" class="app-view">
-            <div class="main-layout-container">
-                <!-- Di Tian Shui BaZi Chart Area -->
-                <div id="chart-area-mobile" class="bazi-container">
-                    <div class="bazi-card">
-                        <!-- User Info Header -->
-                        <div class="bazi-header">
-                            <div class="bazi-header-row">
-                                <div class="header-info-col">
-                                    <div class="header-main">
-                                        <span id="c-name" class="name-text"></span>
-                                    </div>
-                                    <div class="header-sub">
-                                        <div class="info-row">西历: <span id="c-gregorian"></span></div>
-                                        <div class="info-row">农历: <span id="c-lunar"></span></div>
-                                        <div id="c-age-row" class="info-row"></div>
+                            <!-- Section 3: Name & Gender -->
+                            <div class="input-group-box">
+                                <div class="input-row-flex">
+                                    <span class="label-text-new">姓名:</span>
+                                    <input type="text" id="user-name-pc" placeholder="未知" value="未知"
+                                        class="name-input-new">
+                                </div>
+                                <div class="input-row-flex mt-10">
+                                    <span class="label-text-new">性别:</span>
+                                    <div class="gender-radio-group">
+                                        <label class="radio-label-new">男 <input type="radio" name="gender-pc" value="M"
+                                                checked><span class="radio-custom"></span></label>
+                                        <label class="radio-label-new">女 <input type="radio" name="gender-pc"
+                                                value="F"><span class="radio-custom"></span></label>
                                     </div>
                                 </div>
-                                <!-- Five Elements Chart Col -->
-                                <div id="bazi-elements-chart" class="elements-chart-area"></div>
                             </div>
-                        </div>
 
-                        <!-- 4 Pillars Area -->
-                        <div class="pillars-grid" id="bazi-pillars">
-                            <div class="pillar-col">
-                                <div class="p-age" id="p-h-age">时柱</div>
-                                <div class="p-god" id="p-h-god">--</div>
-                                <div class="p-stem" id="p-h-stem">--</div>
-                                <div class="p-branch" id="p-h-branch">--</div>
-                                <div class="p-hidden" id="p-h-hidden">--</div>
-                            </div>
-                            <div class="pillar-col DayMaster">
-                                <div class="p-age" id="p-d-age">日柱</div>
-                                <div class="p-god" id="p-d-god">日元</div>
-                                <div class="p-stem" id="p-d-stem">--</div>
-                                <div class="p-branch" id="p-d-branch">--</div>
-                                <div class="p-hidden" id="p-d-hidden">--</div>
-                            </div>
-                            <div class="pillar-col">
-                                <div class="p-age" id="p-m-age">月柱</div>
-                                <div class="p-god" id="p-m-god">--</div>
-                                <div class="p-stem" id="p-m-stem">--</div>
-                                <div class="p-branch" id="p-m-branch">--</div>
-                                <div class="p-hidden" id="p-m-hidden">--</div>
-                            </div>
-                            <div class="pillar-col">
-                                <div class="p-age" id="p-y-age">年柱</div>
-                                <div class="p-god" id="p-y-god">--</div>
-                                <div class="p-stem" id="p-y-stem">--</div>
-                                <div class="p-branch" id="p-y-branch">--</div>
-                                <div class="p-hidden" id="p-y-hidden">--</div>
-                            </div>
-                            <!-- Current Luck Pillars -->
-                            <div class="pillar-col LuckPillar">
-                                <div class="p-age" id="p-luck-age">--</div>
-                                <div class="p-god" id="p-luck-god">--</div>
-                                <div class="p-stem" id="p-luck-stem">--</div>
-                                <div class="p-branch" id="p-luck-branch">--</div>
-                                <div class="p-hidden" id="p-luck-hidden">--</div>
-                            </div>
-                            <div class="pillar-col LuckPillar">
-                                <div class="p-age" id="p-annual-age">--</div>
-                                <div class="p-god" id="p-annual-god">--</div>
-                                <div class="p-stem" id="p-annual-stem">--</div>
-                                <div class="p-branch" id="p-annual-branch">--</div>
-                                <div class="p-hidden" id="p-annual-hidden">--</div>
+                            <!-- Action Buttons -->
+                            <div class="action-buttons-new">
+                                <button id="btn-save-chart-pc">存档+排盘</button>
+                                <button id="btn-new-chart-pc">设置新命盘</button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Great Luck Cycles Area -->
-                    <div class="luck-card mt-15">
-                        <div class="card-title">大运排盘</div>
-                        <div class="luck-grid" id="luck-list">
-                            <!-- Dynamic Content -->
+                    <!-- Analytical Dashboard (Right Column / Green Box Area) -->
+                    <div class="dashboard-right-pane" id="chart-area-pc">
+
+                        <!-- Tier 1: Single White Card for Header Row -->
+                        <div class="dash-card header-row-tier">
+                            <div class="info-card-v2-container">
+                                <h1 id="c-name-pc" class="info-name">姓名</h1>
+                                <div class="info-details">
+                                    <div id="c-gregorian-pc">西历: --</div>
+                                    <div id="c-lunar-pc">农历: --</div>
+                                    <div id="c-gender-pc">性别: --</div>
+                                </div>
+                            </div>
+
+                            <div class="pillars-card-merged-container">
+                                <!--时、日、月、年 -->
+                                <div class="pillar-vertical" id="p-h-col-pc">
+                                    <div id="p-h-age-pc" class="pillar-label">时柱</div>
+                                    <div id="p-h-god-pc" class="pillar-god">--</div>
+                                    <div id="p-h-stem-pc" class="pillar-stem">--</div>
+                                    <div id="p-h-branch-pc" class="pillar-branch">--</div>
+                                    <div id="p-h-hidden-pc" class="pillar-hidden">--</div>
+                                </div>
+                                <div class="pillar-vertical DayMaster" id="p-d-col-pc">
+                                    <div id="p-d-age-pc" class="pillar-label">日柱</div>
+                                    <div id="p-d-god-pc" class="pillar-god">--</div>
+                                    <div id="p-d-stem-pc" class="pillar-stem">--</div>
+                                    <div id="p-d-branch-pc" class="pillar-branch">--</div>
+                                    <div id="p-d-hidden-pc" class="pillar-hidden">--</div>
+                                </div>
+                                <div class="pillar-vertical" id="p-m-col-pc">
+                                    <div id="p-m-age-pc" class="pillar-label">月柱</div>
+                                    <div id="p-m-god-pc" class="pillar-god">--</div>
+                                    <div id="p-m-stem-pc" class="pillar-stem">--</div>
+                                    <div id="p-m-branch-pc" class="pillar-branch">--</div>
+                                    <div id="p-m-hidden-pc" class="pillar-hidden">--</div>
+                                </div>
+                                <div class="pillar-vertical" id="p-y-col-pc">
+                                    <div id="p-y-age-pc" class="pillar-label">年柱</div>
+                                    <div id="p-y-god-pc" class="pillar-god">--</div>
+                                    <div id="p-y-stem-pc" class="pillar-stem">--</div>
+                                    <div id="p-y-branch-pc" class="pillar-branch">--</div>
+                                    <div id="p-y-hidden-pc" class="pillar-hidden">--</div>
+                                </div>
+                                <!-- 大运、流年 -->
+                                <div class="pillar-vertical LuckPillar" id="p-luck-col-pc">
+                                    <div id="p-luck-age-pc" class="pillar-label">--</div>
+                                    <div id="p-luck-god-pc" class="pillar-god">--</div>
+                                    <div id="p-luck-stem-pc" class="pillar-stem">--</div>
+                                    <div id="p-luck-branch-pc" class="pillar-branch">--</div>
+                                    <div id="p-luck-hidden-pc" class="pillar-hidden">--</div>
+                                </div>
+                                <div class="pillar-vertical LuckPillar" id="p-annual-col-pc">
+                                    <div id="p-annual-age-pc" class="pillar-label">--</div>
+                                    <div id="p-annual-god-pc" class="pillar-god">--</div>
+                                    <div id="p-annual-stem-pc" class="pillar-stem">--</div>
+                                    <div id="p-annual-branch-pc" class="pillar-branch">--</div>
+                                    <div id="p-annual-hidden-pc" class="pillar-hidden">--</div>
+                                </div>
+                            </div>
+
+                            <div class="elements-chart-container">
+                                <div id="bazi-elements-chart-pc" class="elements-chart-area-pc"></div>
+                            </div>
                         </div>
+
+                        <!-- Tier 2: Great Luck | Annual Luck -->
+                        <div class="luck-grid-tier">
+                            <div class="dash-card great-luck-section">
+                                <span class="dash-card-title">大运排盘</span>
+                                <div class="luck-grid-scroll" id="luck-list-pc"></div>
+                            </div>
+                            <div class="dash-card annual-luck-section">
+                                <span class="dash-card-title">流年排盘</span>
+                                <div class="luck-grid-scroll" id="annual-list-pc"></div>
+                            </div>
+                        </div>
+
+                        <!-- Tier 3: Integrated Monthly & Solar Terms (12 Columns) -->
+                        <div id="tier-3" class="luck-grid-tier" style="display: block !important;">
+                            <div class="dash-card monthly-section" style="width: 100% !important;">
+                                <span class="dash-card-title">流月排盘 & 二十四节气</span>
+                                <div class="monthly-grid-pc" id="monthly-list-pc"></div>
+                            </div>
+                        </div>
+
                     </div>
-
-                    <!-- Annual Luck Section -->
-                    <div class="luck-card mt-15">
-                        <div class="card-title">流年排盘</div>
-                        <div class="luck-grid" id="annual-list">
-                            <!-- JS driven -->
-                        </div>
-                    </div>
-
-                    <!-- Monthly Luck Section -->
-                    <div class="luck-card mt-15">
-                        <div class="card-title">流月排盘 / 二十四节气</div>
-                        <div class="monthly-grid" id="monthly-list">
-                            <!-- JS driven -->
-                        </div>
-                        <div class="solar-grid mt-0" id="solar-list">
-                            <!-- JS driven -->
-                        </div>
-
-                    </div>
-
-
                 </div>
-            </div>
-        </section>
+            </section>
+        </div>
 
-        <!-- View 5: Di Tian Shui Reference (滴天髓参考资料) -->
+        <!-- View 5: Di Tian Shui Reference (Keep as separate) -->
         <section id="view-book" class="app-view">
             <header class="view-header">
-                <h2 style="color: #1688B5;">滴天髓</h2>
+                <h2 style="color: #1689b6;">滴天髓参考资料</h2>
             </header>
             <div class="view-content scroll-y">
                 <div class="book-container">
@@ -256,49 +565,13 @@
             </div>
         </section>
 
-
-
-        <!-- Fixed Bottom Navigation Bar (Pages 2, 3, 4) -->
-        <nav id="bottom-nav" style="display:none;">
-            <button class="nav-item" data-view="view-input" id="nav-btn-input">
-                <img src="img/新建出生 Icon .png" alt="新建">
-                <span class="nav-label">新建</span>
-            </button>
-            <button class="nav-item" data-view="view-records" id="nav-btn-records">
-                <img src="img/命盘资料库 Icon .png" alt="资料">
-                <span class="nav-label">资料</span>
-            </button>
-            <button class="nav-item active" data-view="view-main" id="nav-btn-main">
-                <img src="img/BaZi 命盘 .png" alt="命盘">
-                <span class="nav-label">命盘</span>
-            </button>
-            <button class="nav-item" id="backup-btn">
-                <img src="img/backup.png" alt="备份">
-                <span class="nav-label">备份数据</span>
-            </button>
-            <div class="nav-divider"></div>
-            <button class="nav-item" data-view="view-book" id="nav-btn-book">
-                <img src="img/Book Icon .png" alt="资料">
-                <span class="nav-label">参考资料</span>
-            </button>
-
-            <button class="nav-item" id="snapshot-btn">
-                <img src="img/snapshot.png" alt="截图">
-                <span class="nav-label">截图</span>
-            </button>
-            <button class="nav-item" id="bg-change-btn">
-                <img src="img/Phone Wallpapper .png" alt="背景">
-                <span class="nav-label">更换背景</span>
-            </button>
-            <button class="nav-item" id="refresh-btn">
-                <img src="img/refresh.png" alt="清空">
-                <span class="nav-label">清空</span>
-            </button>
-        </nav>
+        <!-- Legacy Bottom Nav (Hidden on PC dashboard) -->
+        <nav id="bottom-nav" style="display:none;"></nav>
     </div>
 
     <!-- Hidden Utils -->
     <input type="file" id="bg-upload-input" accept="image/*" style="display:none">
+    <input type="file" id="import-file-input" accept=".txt" style="display:none">
     <button id="save-backup-btn" style="display:none"></button>
     <div id="bg-layer" class="bg-layer"></div>
     <div id="context-menu" class="context-menu" style="display: none;">
@@ -313,7 +586,7 @@
     <script src="js/li_chun_data.js"></script>
     <script src="js/bazi_utils.js"></script>
     <script src="js/logo-b64.js"></script>
-    <script src="js/app.js"></script>
+    <script src="js/app.js?v=8.0"></script>
     <script src="js/cursor.js"></script>
     <!-- Custom Touch Cursor -->
     <div id="custom-cursor"></div>
