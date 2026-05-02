@@ -426,8 +426,7 @@ html, body {
 
 .info-card-v2-container {
     padding-top: 35px !important; /* Moved down further */
-    padding-left: 0 !important;
-    margin-left: -4px !important; /* Total distance (25-4=21px) is exactly 1.0 char width */
+    padding-left: 11px !important; /* Moved left by 10px as requested */
     display: flex;
     flex-direction: column;
     gap: 8px;
