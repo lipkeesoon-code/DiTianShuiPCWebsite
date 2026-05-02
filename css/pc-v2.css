@@ -287,6 +287,95 @@ html, body {
     transform: scale(0.98);
 }
 
+/* Four Pillars Input Grid */
+.bazi-input-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 5px;
+    width: 281px;
+}
+
+.bazi-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.bazi-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: #475569;
+}
+
+.bazi-select {
+    width: 64px !important;
+    height: 40px !important;
+    border-radius: 6px !important;
+    border: 1px solid #94a3b8 !important;
+    background-color: #dbe4ec !important; /* Constant background */
+    font-size: 20px !important;
+    font-weight: 900 !important;
+    text-align: center !important;
+    cursor: pointer;
+    appearance: none;
+    outline: none;
+    transition: all 0.2s;
+    color: #5c5c5c !important; /* Default K64 */
+    padding: 0 !important;
+}
+
+/* Character Element Text Colors */
+.bazi-select option {
+    background-color: #ffffff !important;
+    color: #1e293b;
+    font-weight: normal !important;
+}
+
+.bazi-select.fire { color: #f06595 !important; }
+.bazi-select.earth { color: #a67b51 !important; }
+.bazi-select.metal { color: #fab041 !important; }
+.bazi-select.water { color: #1688b5 !important; }
+.bazi-select.wood { color: #6e943d !important; }
+.bazi-select.none { color: #5c5c5c !important; }
+
+/* Search Results Cards */
+.search-results-container {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.search-result-card {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 8px 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    cursor: pointer;
+    transition: transform 0.1s, background 0.1s;
+    border-left: 4px solid #1688b5;
+}
+
+.search-result-card:hover {
+    background: #f1f5f9;
+    transform: translateX(3px);
+}
+
+.search-result-card .age-text {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.search-result-card .date-text {
+    font-size: 14px;
+    color: #64748b;
+}
+
 .dashboard-right-pane {
     display: flex;
     flex-direction: column;
@@ -569,9 +658,10 @@ html, body {
 }
 
 .active-term-tag {
-    border: 2px solid #FF3DA3 !important; /* Thickened to 2px */
+    border: 2px solid #FF3DA3 !important;
+    background-color: #fff0f6 !important;
     border-radius: 4px;
-    padding: 2px 1px;
+    padding: 1px 2px;
 }
 
 .monthly-row-huge {

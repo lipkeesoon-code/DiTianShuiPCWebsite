@@ -343,7 +343,47 @@ const BaziUtils = (function() {
         calculateGreatLuck, calculateElementScores,
         getYearGanZhi, calculateAnnualLuck,
         calculateMonthlyLuck,
-        SOLAR_TERMS, getSolarTermDay, getSolarTermMonth
+        SOLAR_TERMS, getSolarTermDay, getSolarTermMonth,
+
+        /**
+         * Reverse search Gregorian dates matching the 4 Pillars
+         */
+        reverseSearchPillars: function (criteria) {
+            const results = [];
+            // Search range 1906-2026 (120 years)
+            for (let y = 1906; y <= 2026; y++) {
+                // Optimization: Check year pillar first
+                let yearGZ = getYearGanZhi(y);
+                if (criteria.yearStem && criteria.yearStem !== yearGZ.stem) continue;
+                if (criteria.yearBranch && criteria.yearBranch !== yearGZ.branch) continue;
+
+                for (let m = 1; m <= 12; m++) {
+                    const daysInMonth = new Date(y, m, 0).getDate();
+                    for (let d = 1; d <= daysInMonth; d++) {
+                        const hourZhis = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
+                        for (let hZhi of hourZhis) {
+                            const bazi = calculatePillars(y, m, d, hZhi);
+                            const match = (!criteria.yearStem || bazi.year.stem === criteria.yearStem) &&
+                                (!criteria.yearBranch || bazi.year.branch === criteria.yearBranch) &&
+                                (!criteria.monthStem || bazi.month.stem === criteria.monthStem) &&
+                                (!criteria.monthBranch || bazi.month.branch === criteria.monthBranch) &&
+                                (!criteria.dayStem || bazi.day.stem === criteria.dayStem) &&
+                                (!criteria.dayBranch || bazi.day.branch === criteria.dayBranch) &&
+                                (!criteria.hourStem || bazi.hour.stem === criteria.hourStem) &&
+                                (!criteria.hourBranch || bazi.hour.branch === criteria.hourBranch);
+
+                            if (match) {
+                                results.push({
+                                    year: y, month: m, day: d, hourZhi: hZhi,
+                                    age: 2026 - y + 1 
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            return results;
+        }
     };
 
 })();

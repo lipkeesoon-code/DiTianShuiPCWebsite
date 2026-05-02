@@ -74,7 +74,19 @@ const UI = {
     bgUploadInput: document.getElementById('bg-upload-input'),
     bgLayer: document.getElementById('bg-layer'),
     dashboardBgOverlay: document.getElementById('dashboard-bg-overlay'),
-    btnLogoutSystem: document.getElementById('logout-btn-pc')
+    btnLogoutSystem: document.getElementById('logout-btn-pc'),
+
+    // Bazi Reverse Search
+    baziSearchGrid: document.querySelector('.bazi-input-grid'),
+    baziHStem: document.getElementById('bazi-h-stem'),
+    baziHBranch: document.getElementById('bazi-h-branch'),
+    baziDStem: document.getElementById('bazi-d-stem'),
+    baziDBranch: document.getElementById('bazi-d-branch'),
+    baziMStem: document.getElementById('bazi-m-stem'),
+    baziMBranch: document.getElementById('bazi-m-branch'),
+    baziYStem: document.getElementById('bazi-y-stem'),
+    baziYBranch: document.getElementById('bazi-y-branch'),
+    baziSearchResults: document.getElementById('bazi-search-results')
 };
 
 // --- Context Menu State & Logic ---
@@ -157,11 +169,13 @@ function handleDelete() {
 
     if (confirm(`确定要删除 ${targetType === 'group' ? '群组' : '记录'}: ${targetData.name} 吗？`)) {
         if (targetType === 'group') {
-            if (targetData.id === 'default') {
-                alert("默认群组不能删除。");
-            } else {
-                State.groups = State.groups.filter(g => g.id !== targetData.id);
-                State.records.filter(r => r.groupId === targetData.id).forEach(r => r.groupId = 'default');
+            State.groups = State.groups.filter(g => g.id !== targetData.id);
+            // Delete all records in this group
+            State.records = State.records.filter(r => r.groupId !== targetData.id);
+            
+            // If the deleted group was the lastUsedGroupId, reset it
+            if (State.lastUsedGroupId === targetData.id) {
+                State.lastUsedGroupId = State.groups.length > 0 ? State.groups[0].id : '';
             }
         } else {
             State.records = State.records.filter(r => r.id !== targetData.id);
@@ -303,6 +317,114 @@ function initDropdowns() {
             updateLunarDisplay();
         });
     });
+
+    initBaziSearch();
+}
+
+function initBaziSearch() {
+    const GAN = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
+    const ZHI = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
+    const elementMap = { "木": "wood", "火": "fire", "土": "earth", "金": "metal", "水": "water" };
+    const elementHexMap = { "木": "#6e943d", "火": "#f06595", "土": "#a67b51", "金": "#fab041", "水": "#1688b5" };
+
+    const stemSelects = [UI.baziHStem, UI.baziDStem, UI.baziMStem, UI.baziYStem];
+    const branchSelects = [UI.baziHBranch, UI.baziDBranch, UI.baziMBranch, UI.baziYBranch];
+
+    const allBaziSelects = [...stemSelects, ...branchSelects];
+
+    allBaziSelects.forEach(select => {
+        const isStem = stemSelects.includes(select);
+        select.add(new Option("-", ""));
+        const items = isStem ? GAN : ZHI;
+        items.forEach(item => {
+            const opt = new Option(item, item);
+            const el = BaziUtils.ELEMENTS[item];
+            const hex = elementHexMap[el];
+            if (hex) {
+                opt.style.color = hex;
+                opt.style.fontWeight = "bold";
+            }
+            select.add(opt);
+        });
+
+        select.addEventListener('change', () => {
+            updateBaziSelectColor(select);
+            performBaziSearch();
+        });
+    });
+
+    function updateBaziSelectColor(select) {
+        const val = select.value;
+        select.className = 'bazi-select'; // Reset
+        if (!val) {
+            select.classList.add('none');
+            return;
+        }
+        const el = BaziUtils.ELEMENTS[val];
+        const elClass = elementMap[el] || 'none';
+        select.classList.add(elClass);
+    }
+
+    function performBaziSearch() {
+        const criteria = {
+            hourStem: UI.baziHStem.value,
+            hourBranch: UI.baziHBranch.value,
+            dayStem: UI.baziDStem.value,
+            dayBranch: UI.baziDBranch.value,
+            monthStem: UI.baziMStem.value,
+            monthBranch: UI.baziMBranch.value,
+            yearStem: UI.baziYStem.value,
+            yearBranch: UI.baziYBranch.value
+        };
+
+        // Only search if at least one is selected? 
+        // User says "如果客户， 没有给到西历年月日时，只是提供 出生 4柱八字"
+        // But usually search happens when all are selected.
+        const allSelected = Object.values(criteria).every(v => v !== "");
+        if (!allSelected) {
+            UI.baziSearchResults.innerHTML = "";
+            return;
+        }
+
+        const matches = BaziUtils.reverseSearchPillars(criteria);
+        renderBaziSearchResults(matches);
+    }
+
+    function renderBaziSearchResults(matches) {
+        UI.baziSearchResults.innerHTML = "";
+        if (matches.length === 0) {
+            UI.baziSearchResults.innerHTML = "<div style='color: #64748b; font-size: 14px; text-align:center; padding: 10px;'>未找到匹配的日期</div>";
+            return;
+        }
+
+        const countHeader = document.createElement('div');
+        countHeader.style = "font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 5px;";
+        countHeader.textContent = `找到 ${matches.length} 个西历选择：`;
+        UI.baziSearchResults.appendChild(countHeader);
+
+        matches.forEach(m => {
+            const card = document.createElement('div');
+            card.className = 'search-result-card';
+            card.style.display = 'flex';
+            card.style.alignItems = 'center';
+            card.style.gap = '10px';
+            card.innerHTML = `
+                <span class="age-text" style="color: #f06595 !important;">${m.age}岁</span>
+                <span class="date-text" style="font-size: 14px; color: #64748b;">${m.year}年 ${m.month}月 ${m.day}日 ${m.hourZhi}时</span>
+            `;
+            card.onclick = () => {
+                UI.gregYear.value = m.year;
+                UI.gregMonth.value = m.month;
+                updateDaysDropdown();
+                UI.gregDay.value = m.day;
+                UI.gregTime.value = m.hourZhi;
+                updateLunarDisplay();
+                // Optional: Clear search results after selection
+                // UI.baziSearchResults.innerHTML = "";
+            };
+            UI.baziSearchResults.appendChild(card);
+        });
+    }
 }
 
 function updateDaysDropdown() {
@@ -354,6 +476,19 @@ function resetToToday() {
     UI.gregTime.value = TimePeriods[zhiIndex].zhi;
     UI.userName.value = '未知';
     updateLunarDisplay();
+
+    // Clear BaZi search fields
+    const baziSelects = [
+        UI.baziHStem, UI.baziHBranch, UI.baziDStem, UI.baziDBranch,
+        UI.baziMStem, UI.baziMBranch, UI.baziYStem, UI.baziYBranch
+    ];
+    baziSelects.forEach(select => {
+        if (select) {
+            select.value = "";
+            select.className = 'bazi-select none';
+        }
+    });
+    if (UI.baziSearchResults) UI.baziSearchResults.innerHTML = "";
 }
 
 function renderGroups() {
@@ -999,27 +1134,30 @@ function renderMonthlyLuck(record, bazi) {
     const actualMonth = now.getMonth() + 1;
     const actualDay = now.getDate();
 
+    // Determine actual current solar month index (1-12, starting from Feb)
+    let actualCurrentMonthIdx = -1;
+    let actualCurrentTermIdx = -1;
+
+    for (let i = 23; i >= 0; i--) {
+        const d = BaziUtils.getSolarTermDay(actualYear, i);
+        const m = BaziUtils.getSolarTermMonth(i);
+        if (actualMonth > m || (actualMonth === m && actualDay >= d)) {
+            actualCurrentTermIdx = i;
+            actualCurrentMonthIdx = Math.floor(i / 2) + 1;
+            break;
+        }
+    }
+    // Fallback for January before Xiao Han
+    if (actualCurrentMonthIdx === -1) {
+        actualCurrentMonthIdx = 12; 
+        actualCurrentTermIdx = 23;
+    }
+
     months.forEach((m) => {
         const itemWrapper = document.createElement('div');
         itemWrapper.className = 'luck-item-wrapper-monthly';
 
-        // Logic to determine if this is the ACTUAL CURRENT month in real time
-        let isActualCurrentMonth = false;
-        if (State.browsingYear === actualYear) {
-            // For 2026, Apr 24 is the 3rd month (index 3) starting from Feb
-            if (actualMonth === 4 && m.index === 3) isActualCurrentMonth = true;
-            else if (actualMonth === 2 && m.index === 1) isActualCurrentMonth = true;
-            else if (actualMonth === 3 && m.index === 2) isActualCurrentMonth = true;
-            else if (actualMonth === 5 && m.index === 4) isActualCurrentMonth = true;
-            else if (actualMonth === 6 && m.index === 5) isActualCurrentMonth = true;
-            else if (actualMonth === 7 && m.index === 6) isActualCurrentMonth = true;
-            else if (actualMonth === 8 && m.index === 7) isActualCurrentMonth = true;
-            else if (actualMonth === 9 && m.index === 8) isActualCurrentMonth = true;
-            else if (actualMonth === 10 && m.index === 9) isActualCurrentMonth = true;
-            else if (actualMonth === 11 && m.index === 10) isActualCurrentMonth = true;
-            else if (actualMonth === 12 && m.index === 11) isActualCurrentMonth = true;
-            else if (actualMonth === 1 && m.index === 12) isActualCurrentMonth = true;
-        }
+        const isActualCurrentMonth = (State.browsingYear === actualYear && m.index === actualCurrentMonthIdx);
 
         const isBrowsingMonth = (m.index === State.browsingMonthIndex);
 
@@ -1052,9 +1190,9 @@ function renderMonthlyLuck(record, bazi) {
             else if (idx >= 12 && idx <= 17) colorClass = 'text-metal';
             else if (idx >= 18 && idx <= 23) colorClass = 'text-water';
 
-            // Identify ACTUAL CURRENT TERM (Gu Yu for Apr 24, 2026)
+            // Identify ACTUAL CURRENT TERM
             let isCurrentTermText = false;
-            if (actualYear === 2026 && actualMonth === 4 && actualDay >= 20 && idx === 5) {
+            if (actualYear === State.browsingYear && idx === actualCurrentTermIdx) {
                 isCurrentTermText = true;
             }
 
