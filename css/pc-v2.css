@@ -393,7 +393,7 @@ html, body {
     display: grid !important;
     grid-template-columns: 280px 1fr 300px;
     gap: 15px;
-    padding: 15px 25px 15px 0px !important; /* Left = 0 to bring info to left edge */
+    padding: 15px 25px !important; /* Restored to keep pillars unmoved */
     width: 1220px !important; 
     height: 300px !important; /* Optimized from 310px */
     min-height: 300px !important;
@@ -425,8 +425,9 @@ html, body {
 }
 
 .info-card-v2-container {
-    padding-top: 35px !important;
-    padding-left: 12px !important; /* Small left indent from card edge */
+    padding-top: 35px !important; /* Moved down further */
+    padding-left: 0px !important; /* Moved to far left */
+    margin-left: -17px !important; /* -25px parent padding + 8px alignment target = -17px */
     display: flex;
     flex-direction: column;
     gap: 8px;
