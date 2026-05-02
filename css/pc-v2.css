@@ -426,8 +426,7 @@ html, body {
 
 .info-card-v2-container {
     padding-top: 35px !important; /* Moved down further */
-    padding-left: 0px !important; /* Moved to far left */
-    margin-left: -17px !important; /* -25px parent padding + 8px alignment target = -17px */
+    padding-left: 0px !important; /* Stay at 0 padding */
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -438,10 +437,11 @@ html, body {
     margin: 0 0 8px 0 !important;
     color: #1e293b;
     word-break: break-all;
-    white-space: normal;
+    white-space: normal !important; /* Allow wrapping for long names */
     display: block;
-    width: 245px !important; /* Strictly limit width within the 280px column */
+    width: 280px !important; 
     line-height: 1.2;
+    max-height: 100px; /* Limit to approx 2 lines */
     overflow: visible;
 }
 
@@ -449,8 +449,8 @@ html, body {
     font-size: 21px !important;
     color: #64748b !important;
     word-break: break-all;
-    white-space: normal;
-    width: 245px !important;
+    white-space: nowrap !important; /* Force single line to keep '时' up */
+    width: 280px !important; /* Expanded from 245px */
 }
 
 .pillars-card-merged-container {
