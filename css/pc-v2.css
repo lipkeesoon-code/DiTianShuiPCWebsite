@@ -427,6 +427,7 @@ html, body {
 .info-card-v2-container {
     padding-top: 35px !important; /* Moved down further */
     padding-left: 0px !important; /* Moved to far left */
+    margin-left: -25px !important; /* Counteract parent padding to touch the edge */
     display: flex;
     flex-direction: column;
     gap: 8px;
