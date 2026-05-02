@@ -114,8 +114,8 @@ html, body {
 .main-dashboard-grid-v2 {
     display: grid;
     grid-template-columns: 320px 1fr;
-    gap: 12px;
-    padding: 12px;
+    gap: 8px;
+    padding: 8px;
     height: 100vh;
     overflow: hidden;
     box-sizing: border-box;
@@ -379,12 +379,12 @@ html, body {
 .dashboard-right-pane {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
     flex: 1;
     min-height: 0;
     height: 100vh;
     overflow-x: auto;
-    overflow-y: hidden;
+    overflow-y: auto; /* Fallback for small screens */
 }
 
 /* Tier 1: Header Row (Professional Balanced Layout) */
@@ -395,13 +395,13 @@ html, body {
     gap: 15px;
     padding: 15px 25px !important;
     width: 1220px !important; 
-    height: 310px !important; /* STRICT LOCK */
-    min-height: 310px !important;
-    max-height: 310px !important;
+    height: 300px !important; /* Optimized from 310px */
+    min-height: 300px !important;
+    max-height: 300px !important;
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.06);
     box-sizing: border-box;
-    flex: 0 0 310px !important;
+    flex: 0 0 300px !important;
     align-items: center;
     overflow: hidden;
 }
@@ -467,25 +467,25 @@ html, body {
 .luck-grid-tier {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    gap: 8px; /* Optimized from 12px */
     width: 1220px !important; /* Final Fit Width */
     flex-shrink: 0;
 }
 
 /* Tier 2: Great Luck | Annual Luck */
 .dashboard-right-pane > div:nth-child(2) {
-    height: 275px !important; /* Refined to 275px */
-    min-height: 275px !important;
-    max-height: 275px !important;
-    flex: 0 0 275px !important;
+    height: 265px !important; /* Optimized from 275px */
+    min-height: 265px !important;
+    max-height: 265px !important;
+    flex: 0 0 265px !important;
 }
 
 /* Tier 3: Monthly Luck | Solar Terms */
 .dashboard-right-pane > div:nth-child(3) {
-    height: 308px !important; /* Locked to 308px */
-    min-height: 308px !important;
-    max-height: 308px !important;
-    flex: 0 0 308px !important;
+    height: 298px !important; /* Optimized from 308px */
+    min-height: 298px !important;
+    max-height: 298px !important;
+    flex: 0 0 298px !important;
 }
 
 .luck-grid-tier .dash-card {
