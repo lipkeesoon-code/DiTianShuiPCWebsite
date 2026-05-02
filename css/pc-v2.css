@@ -391,7 +391,7 @@ html, body {
 .header-row-tier {
     background: #ffffff !important;
     display: grid !important;
-    grid-template-columns: 280px 1fr 300px;
+    grid-template-columns: 330px 1fr 300px; /* Increased from 280px to fit long dates */
     gap: 15px;
     padding: 15px 25px !important;
     width: 1220px !important; 
@@ -426,7 +426,7 @@ html, body {
 
 .info-card-v2-container {
     padding-top: 35px !important; /* Moved down further */
-    padding-left: 21px !important; /* Moved right by width of '西' */
+    padding-left: 32px !important; /* Moved right by 1.5x width of '西' (approx 32px) */
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -439,17 +439,18 @@ html, body {
     word-break: break-all;
     white-space: normal;
     display: block;
-    width: 245px !important; /* Strictly limit width within the 280px column */
+    width: 290px !important; /* Expanded to fit within 330px column with 32px padding */
     line-height: 1.2;
     overflow: visible;
+    white-space: nowrap; /* Force single line */
 }
 
 .info-details div {
     font-size: 21px !important;
     color: #64748b !important;
     word-break: break-all;
-    white-space: normal;
-    width: 245px !important;
+    white-space: nowrap; /* Force single line to prevent wrapping */
+    width: 290px !important;
 }
 
 .pillars-card-merged-container {
