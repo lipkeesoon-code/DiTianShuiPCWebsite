@@ -391,9 +391,9 @@ html, body {
 .header-row-tier {
     background: #ffffff !important;
     display: grid !important;
-    grid-template-columns: 280px 1fr 300px;
+    grid-template-columns: 310px 1fr 300px; /* Increased from 280px to 310px */
     gap: 15px;
-    padding: 15px 25px !important;
+    padding: 15px 10px !important; /* Reduced side padding from 25px to 10px */
     width: 1220px !important; 
     height: 300px !important; /* Optimized from 310px */
     min-height: 300px !important;
@@ -426,8 +426,8 @@ html, body {
 
 .info-card-v2-container {
     padding-top: 35px !important; /* Moved down further */
-    padding-left: 0px !important; /* Moved left by 1.5 '西' (21px - 31px = -10px) */
-    margin-left: -10px !important;
+    padding-left: 0px !important; 
+    margin-left: 0px !important; /* Reset margin, using parent padding instead */
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -437,10 +437,10 @@ html, body {
     font-size: 2.4rem !important;
     margin: 0 0 8px 0 !important;
     color: #1e293b;
-    word-break: keep-all; /* Changed to keep-all */
-    white-space: nowrap !important; /* Force one line */
+    word-break: keep-all !important;
+    white-space: nowrap !important;
     display: block;
-    width: 280px !important; /* Increased to fit name */
+    width: 300px !important; /* Increased width */
     line-height: 1.2;
     overflow: visible;
 }
@@ -448,9 +448,9 @@ html, body {
 .info-details div {
     font-size: 21px !important;
     color: #64748b !important;
-    word-break: keep-all; /* Changed to keep-all */
-    white-space: nowrap !important; /* Force one line as requested */
-    width: 280px !important; /* Increased to fit full date */
+    word-break: keep-all !important;
+    white-space: nowrap !important;
+    width: 300px !important; /* Increased width to prevent any wrapping */
 }
 
 .pillars-card-merged-container {
