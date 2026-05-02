@@ -426,7 +426,7 @@ html, body {
 
 .info-card-v2-container {
     padding-top: 35px !important; /* Moved down further */
-    padding-left: 11px !important; /* Moved left by 10px as requested */
+    padding-left: 0px !important; /* Moved to far left */
     display: flex;
     flex-direction: column;
     gap: 8px;
